@@ -2,7 +2,7 @@
 
 [plugin-info]
 SHORT_PLUGIN_NAME = 'raspberry'  #to be modified, for instance daqmx then rename the module name:
-# (pymodaq_plugins_template become pymodaq_plugins_daqmx for instance)
+# (pymodaq_plugins_raspberry become pymodaq_plugins_daqmx for instance)
 
 package-url = 'https://github.com/PyMoDAQ/pymodaq_plugins_raspberry' #to modify
 description = 'Set of instrument plugins to use with a raspberry'

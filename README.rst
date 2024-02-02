@@ -1,5 +1,5 @@
-pymodaq_plugins_template
-########################
+Raspberry plugin
+################
 
 .. the following must be adapted to your developed package, links to pypi, github  description...
 
@@ -68,7 +68,7 @@ Below is the list of instruments included in this plugin
 Viewer2D
 ++++++++
 
-* **picamera**: control of the integrated pi camera
+* **picamera**: control of the integrated pi camera using the Picamera2 library
 
 .. if needed use this field
 

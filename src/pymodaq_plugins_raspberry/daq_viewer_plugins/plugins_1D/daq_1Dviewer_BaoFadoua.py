@@ -23,9 +23,10 @@ class DAQ_1DViewer_BaoFadoua(DAQ_Viewer_base):
 
     """
     params = comon_parameters+[
-        {'title': 'Nombre de points:', 'name': 'nombre_points', 'type': 'int', 'value': 1000, 'min': 0}
+        {'title': 'Nombre de points:', 'name': 'nombre_points', 'type': 'int', 'value': 1000, 'min': 0},
+        {'title': 'Duree:', 'name': 'duree', 'type': 'float', 'value': 5, 'min': 0}
 
-        ]
+    ]
 
     def ini_attributes(self):
         self.controller: mcc128 = None
@@ -91,7 +92,7 @@ class DAQ_1DViewer_BaoFadoua(DAQ_Viewer_base):
         """
 
         ##synchrone version (blocking function)
-        data, timing = self.controller.generateur(5)
+        data, timing = self.controller.generateur(self.settings['duree'])
         xaxis = Axis('time', 'seconds', timing, 0 )
         self.dte_signal.emit(DataToExport('myplugin',
                                           data=[DataFromPlugins(name='Mock1', data=[data],

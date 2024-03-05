@@ -24,10 +24,10 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
 
     """
     params = comon_parameters+[
-        {'title': 'Nombre de points:', 'name': 'nombre_points', 'type': 'int', 'value': 1000, 'min': 0, 'max' : 100000},
+        {'title': 'Samples:', 'name': 'samples', 'type': 'int', 'value': 1000, 'min': 0, 'max' : 100000},
         {'title': 'Frequency :', 'name': 'frequency', 'type': 'int', 'value': 100, 'min': 0},
         {'title': 'Range', 'name': 'range', 'type': 'list', 'value':10 , 'limits':[10, 5, 2 ,1] },
-        {'title': 'Mode', 'name': 'mode', 'type': 'list', 'value': 'DIFFERENTIAL', 'limits': ['SINGLE_END', 'DIFFERENTIAL']},
+        {'title': 'Mode', 'name': 'mode', 'type': 'list', 'value': 'SINGLE_END', 'limits': ['SINGLE_END', 'DIFFERENTIAL']},
         {'title': 'Single_End_Channel', 'name': 'channel_single', 'type': 'list', 'value': 'CH0H', 'limits': ['CHOH', 'CH1H', 'CH2H', 'CH3H', 'CH0L',\
                                                                                                          'CH1L', 'CH2L', 'CH3L']},
         {'title': 'Trigger Mode', 'name': 'trigger_mode', 'type': 'list', 'value': 'NONE', 'limits': ['NONE', 'RISING_EDGE' ,'FALLING_EDGE', 'ACTIVE_HIGH', \
@@ -40,8 +40,10 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
     def ini_attributes(self):
         self.controller: mcc128 = None
         self.option = OptionFlags.DEFAULT
-        self.controller.a_in_mode_write(0)
-        self.controller.a_in_range_write(0)
+        #self.controller.a_in_mode_write(0)
+        #self.controller.a_in_range_write(0)
+        self.mode = 0
+        self.range = 0
 
 
 
@@ -54,19 +56,37 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
             A given parameter (within detector_settings) whose value has been changed by the user
         """
         ## TODO for your custom plugin
-        if param.name() == "nombre_points":
-           self.set_nb_points()
+        if param.name() == 'mode':
+           self.set_mode()
 
-#        elif ...
+        elif param.name() == 'range':
+            self.set_range()
         ##
 
     def scan_data(self):
-        self.controller.a_in_scan_start(1, self.settings['nombre_points'], self.settings['frequency'], self.option)
-        voltage = self.controller.a_in_scan_read(self.settings['nb_points'], 0)
+        self.controller.a_in_scan_start(1, self.settings['sample'], self.settings['frequency'], self.option)
+        voltage = self.controller.a_in_scan_read(self.settings['sample'], 0)
         self.controller.a_in_scan_stop()
         self.controller.a_in_scan_cleanup()
         return voltage
 
+    def set_mode(self):
+        if self.settings['mode'] == 'SINGLE_ENDED':
+            self.mode =0
+        else:
+            self.mode =1
+        self.controller.a_in_mode_write(self.mode)
+
+    def set_range(self):
+        if self.settings['range'] == 10:
+            self.range = 0
+        elif self.settings['range'] == 5:
+            self.range = 1
+        elif self.settings['range'] == 2:
+            self.range = 2
+        elif self.settings['range'] == 1:
+            self.range = 3
+        self.controller.a_in_range_write(self.range)
 
 
     def ini_detector(self, controller=None):
@@ -87,7 +107,6 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
 
         self.ini_detector_init(old_controller=controller,
                                new_controller=mcc128(0))
-
 
         info = "Whatever info you want to log"
         initialized = True
@@ -112,7 +131,7 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
 
         ##synchrone version (blocking function)
         data = self.scan_data()
-        xaxis =  np.arange(0,(self.settings['nombre_points'])*1/self.settings['frequency'], 1/self.settings['frequency'] )
+        xaxis =  np.arange(0,(self.settings['sample'])*1/self.settings['frequency'], 1/self.settings['frequency'] )
 
         self.dte_signal.emit(DataToExport('myplugin',
                                           data=[DataFromPlugins(name='Mock1', data=[data],

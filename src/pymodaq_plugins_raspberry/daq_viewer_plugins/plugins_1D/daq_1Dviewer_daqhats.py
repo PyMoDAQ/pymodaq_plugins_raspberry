@@ -25,23 +25,20 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
     """
     params = comon_parameters+[
         {'title': 'Samples:', 'name': 'samples', 'type': 'int', 'value': 1000, 'min': 0, 'max' : 100000},
-        {'title': 'Frequency :', 'name': 'frequency', 'type': 'int', 'value': 100, 'min': 0},
+        {'title': 'Frequency :', 'name': 'frequency', 'type': 'int', 'value': 100, 'min': 0 , 'max': 100000},
         {'title': 'Range', 'name': 'range', 'type': 'list', 'value':10 , 'limits':[10, 5, 2 ,1] },
         {'title': 'Mode', 'name': 'mode', 'type': 'list', 'value': 'SINGLE_END', 'limits': ['SINGLE_END', 'DIFFERENTIAL']},
         {'title': 'Single_End_Channel', 'name': 'channel_single', 'type': 'list', 'value': 'CH0H', 'limits': ['CHOH', 'CH1H', 'CH2H', 'CH3H', 'CH0L',\
                                                                                                          'CH1L', 'CH2L', 'CH3L']},
         {'title': 'Trigger Mode', 'name': 'trigger_mode', 'type': 'list', 'value': 'NONE', 'limits': ['NONE', 'RISING_EDGE' ,'FALLING_EDGE', 'ACTIVE_HIGH', \
-                                                                                                      'ACTIVE_LOW']},
-        {'title': 'Option' , 'name':'option', 'type': 'list', 'value': 'DEFAUT', 'limits': ['DEFAUT', 'NOSCALEDATA', 'NOCALIBRATEDATA']}
+                                                                                                      'ACTIVE_LOW']}
 
 
     ]
 
     def ini_attributes(self):
-        self.controller: mcc128 = None
+        self.controller: mcc128(0) = None
         self.option = OptionFlags.DEFAULT
-        #self.controller.a_in_mode_write(0)
-        #self.controller.a_in_range_write(0)
         self.mode = 0
         self.range = 0
 
@@ -62,21 +59,42 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         elif param.name() == 'range':
             self.set_range()
         ##
-
+    '''
+    /Start an acquisition
+    
+    The steps integred of the acquisition are:
+        *Start scan data : Set channels,  total samples , sampling rate and option
+        *Read data from the buffer
+        *Stop scan and clean the buffer 
+    '''
     def scan_data(self):
-        self.controller.a_in_scan_start(1, self.settings['sample'], self.settings['frequency'], self.option)
-        voltage = self.controller.a_in_scan_read(self.settings['sample'], 0)
+        num_scan_sample = self.settings['samples']
+        scan_freq = self.settings['frequency']
+        channel_in = self.set_channel()
+
+        self.controller.a_in_scan_start(channel_in, num_scan_sample, scan_freq, self.option)
+        voltage = self.controller.a_in_scan_read_numpy(num_scan_sample, 0.5)
         self.controller.a_in_scan_stop()
         self.controller.a_in_scan_cleanup()
-        return voltage
-
+        return voltage.data
+    '''
+    /Set the analog input mode:
+        *SINGLE-ENDED MODE : 8 inputs relative to ground
+        *DIFFERENTIAL MODE : 4 channels with positive and negative inputs
+    '''
     def set_mode(self):
         if self.settings['mode'] == 'SINGLE_ENDED':
-            self.mode =0
-        else:
-            self.mode =1
+            self.mode = 0
+        elif self.settings['mode'] == 'DIFFERENTIAL':
+            self.mode = 1
         self.controller.a_in_mode_write(self.mode)
-
+    '''
+    /Set the range of the analog input:
+        * +/-10V range
+        * +/-5V range
+        * +/-2V range
+        * +/-1V range
+    '''
     def set_range(self):
         if self.settings['range'] == 10:
             self.range = 0
@@ -87,6 +105,33 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         elif self.settings['range'] == 1:
             self.range = 3
         self.controller.a_in_range_write(self.range)
+
+
+    """
+    /Choose the channel
+    """
+
+    def set_channel(self):
+        channel_mask  = 0
+        port = self.settings['channel']
+        if port == 'CHOH':
+            channel_mask = 1
+        elif port == 'CH1H':
+            channel_mask = 2
+        elif port == 'CH2H':
+            channel_mask = 4
+        elif port == 'CH3H':
+            channel_mask = 8
+        elif port == 'CH0L':
+            channel_mask = 16
+        elif port == 'CH1L':
+            channel_mask = 32
+        elif port == 'CH2L':
+            channel_mask = 64
+        elif port == 'CH3L':
+            channel_mask = 128
+
+        return channel_mask
 
 
     def ini_detector(self, controller=None):
@@ -130,11 +175,15 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         """
 
         ##synchrone version (blocking function)
-        data = self.scan_data()
-        xaxis =  np.arange(0,(self.settings['sample'])*1/self.settings['frequency'], 1/self.settings['frequency'] )
+
+        num_sample = self.settings['samples']
+        freq = self.settings['frequency']
+
+        signal = self.scan_data()
+        xaxis = Axis('time', 'seconds', np.arange(0, num_sample / freq, 1 / freq), 0)
 
         self.dte_signal.emit(DataToExport('myplugin',
-                                          data=[DataFromPlugins(name='Mock1', data=[data],
+                                          data=[DataFromPlugins(name='Mock1', data=[signal],
                                                                 dim='Data1D', labels=['grabed'],
                                                                 axes=[xaxis])]))
 

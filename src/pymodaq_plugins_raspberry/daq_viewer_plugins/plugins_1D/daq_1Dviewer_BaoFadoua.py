@@ -23,8 +23,17 @@ class DAQ_1DViewer_BaoFadoua(DAQ_Viewer_base):
 
     """
     params = comon_parameters+[
-        {'title': 'Nombre de points:', 'name': 'nombre_points', 'type': 'int', 'value': 1000, 'min': 0},
-        {'title': 'Duree:', 'name': 'duree', 'type': 'float', 'value': 5, 'min': 0}
+        {'title': 'Nombre de points:', 'name': 'nombre_points', 'type': 'int', 'value': 1000, 'min': 0, 'max': 100000},
+        {'title': 'Duree', 'name': 'duree', 'type': 'int', 'value': 5, 'min': 0},
+        {'title': 'Range', 'name': 'range', 'type': 'list', 'value': 10, 'limits': [10, 5, 2, 1]},
+        {'title': 'Mode', 'name': 'mode', 'type': 'list', 'value': 'DIFFERENTIAL',
+         'limits': ['SINGLE_END', 'DIFFERENTIAL']},
+        {'title': 'Channel', 'name': 'channel', 'type': 'list', 'value': 0, 'limits': [0, 1, 2, 3, 4, 5, 6, 7]},
+        {'title': 'Trigger Mode', 'name': 'trigger_mode', 'type': 'list', 'value': 'NONE',\
+         'limits': ['NONE', 'RISING_EDGE', 'FALLING_EDGE', 'ACTIVE_HIGH', \
+                    'ACTIVE_LOW']},
+        {'title': 'Option', 'name': 'option', 'type': 'list', 'value': 'DEFAUT',\
+         'limits': ['DEFAUT', 'NOSCALEDATA', 'NOCALIBRATEDATA']}
 
     ]
 
@@ -47,8 +56,11 @@ class DAQ_1DViewer_BaoFadoua(DAQ_Viewer_base):
         ##
 
     def set_nb_points(self):
-        nb_points = self.settings['nombre_points']
-        self.controller.npts = nb_points
+        self.controller.npts =  self.settings['nombre_points']
+
+
+
+
 
 
     def ini_detector(self, controller=None):

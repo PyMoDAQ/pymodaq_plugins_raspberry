@@ -61,8 +61,6 @@ class DAQ_1DViewer_BaoFadoua(DAQ_Viewer_base):
 
 
 
-
-
     def ini_detector(self, controller=None):
         """Detector communication initialization
 
@@ -90,6 +88,16 @@ class DAQ_1DViewer_BaoFadoua(DAQ_Viewer_base):
         pass
         """Terminate the communication protocol"""
 
+    def get_data(self, list_signal, samples, nb_channel_activated):
+        list_signal_arranged = []
+        for k in range(nb_channel_activated):
+            list_signal_arranged.append([list_signal[k]])
+        i = nb_channel_activated
+        while i <= len(list_signal) - nb_channel_activated:
+            for j in range(nb_channel_activated):
+                list_signal_arranged[j].append(list_signal[i + j])
+            i = i + nb_channel_activated
+        return list_signal_arranged
 
     def grab_data(self, Naverage=1, **kwargs):
         """Start a grab from the detector
@@ -104,10 +112,16 @@ class DAQ_1DViewer_BaoFadoua(DAQ_Viewer_base):
         """
 
         ##synchrone version (blocking function)
-        data, timing = self.controller.generateur(self.settings['duree'])
-        xaxis = Axis('time', 'seconds', timing, 0 )
+        data = [5, 4, 3, 3, 45, 4, 6, 7, 8, 1, 2, 3, 4, 5, 2, 44, 33, 2, 1, 32]
+        #data, timing = self.controller.generateur(self.settings['duree'])
+        #data = data + np.random.random(len(data))
+        xaxis = Axis('time', 'seconds',np.array([0,1,2,3,4,5,6,7,8,9]), 0 )
+
+        king = self.get_data(data, 10, 2)
+
+
         self.dte_signal.emit(DataToExport('myplugin',
-                                          data=[DataFromPlugins(name='Mock1', data=[data],
+                                          data=[DataFromPlugins(name='Mock1', data=[np.array([5,6,7,4,2,4,5,6,8,65])],
                                                                 dim='Data1D', labels=['grabed'],
                                                                 axes=[xaxis])]))
 

@@ -26,18 +26,11 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
          'limits': ['RISING_EDGE', 'FALLING_EDGE', 'ACTIVE_HIGH',
                     'ACTIVE_LOW']},
         {'title': 'External_clock', 'name': 'extclock', 'type': 'bool', 'value': False},
-        {'title': 'Multichannel', 'name': 'multi', 'type': 'bool', 'value': False},
-        {'title': 'Number of sample:', 'name': 'num_sample', 'type': 'int', 'value': 1000, 'min': 0, 'max': 100000},
-        {'title': 'Frequency :', 'name': 'frequency', 'type': 'int', 'value': 100, 'min': 0},
+        {'title': 'Number of samples:', 'name': 'num_sample', 'type': 'int', 'value': 1000, 'min': 0},
+        {'title': 'Sampling rate :', 'name': 'frequency', 'type': 'int', 'value': 10000, 'min': 0, 'max': 100000},
         {'title': 'Range', 'name': 'range', 'type': 'list', 'value': 10, 'limits': [10, 5, 2, 1]},
         {'title': 'Mode', 'name': 'mode', 'type': 'list', 'value': 'SINGLE_END',
          'limits': ['SINGLE_ENDED', 'DIFFERENTIAL']},
-        {'title': 'Channel _1', 'name': 'channel_single', 'type': 'list', 'value': 'CH0H',
-         'limits': ['CH0H', 'CH1H', 'CH2H', 'CH3H', 'CH0L',
-                    'CH1L', 'CH2L', 'CH3L']},
-        {'title': 'Channel_2_', 'name': 'channel_single_2', 'type': 'list', 'value': 'CH1H',
-         'limits': ['CH0H', 'CH1H', 'CH2H', 'CH3H', 'CH0L',
-                    'CH1L', 'CH2L', 'CH3L']},
         {'title': "Channel", 'name': 'channel_active', 'type': 'group', 'children': [
             {'title': 'CH0H', 'name': 'CH0H', 'type': 'bool', 'value': False},
             {'title': 'CH1H', 'name': 'CH1H', 'type': 'bool', 'value': False},
@@ -67,6 +60,7 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         self.input_channel_2 = 2
         self.channel_mask = 0
         self.num_channels = 0
+        self.data_signal = []
 
     def commit_settings(self, param: Parameter):
         """Apply the consequences of a change of value in the detector settings
@@ -83,8 +77,6 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
             self.set_range()
         elif param.name() == 'trigger_mode':
             self.set_trigger()
-        # elif param.name() == 'channel_active':
-        # self.active_channel()
         elif param.name() in iter_children(self.settings.child('channel_active'), []):
             self.active_channel()
 
@@ -96,7 +88,8 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         self.controller.a_in_scan_cleanup()
         return voltage.data
 
-    """ This sets the analog input range to one of the value
+    # RANGE
+    """ This sets the analog input range to one of these values
         +/- 10V
         +/- 5V
         +/- 2V
@@ -125,11 +118,12 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
 
     """
     This reads the sets the external trigger mode input of the card
+    
     There are 4 type available TRIGGER mode:
-        *RISING_EDGE: Star scan when the external trigger is from LOW to HIGH
-        *FALLING_EDGE: Star scan when the external trigger is from HIGH to LOW
-        *ACTIVE_HIGH: Start scan when the external trigger is HIGH
-        *ACTIVE_LOW: Start scan when the external trigger is LOW
+        *RISING_EDGE:
+        *FALLING_EDGE:
+        *ACTIVE_HIGH:
+        *ACTIVE_LOW:
     
     """
 
@@ -146,7 +140,7 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
             Tmode = 3
         self.controller.trigger_mode(Tmode)
 
-
+    # Active channel
     """
 
     This function reads the states of channels on the interface and returns the bit mask of the active channels, 
@@ -202,26 +196,19 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         return count, number_channels, name_channel
 
     """
-    This used to convert the initial list of data which is returned by the function "self.scan_data" into 
-    a list of arrays in which each array corresponds to the data of each active channel 
     
-    Parameter:
-        
-        list_signal_non_arranged (list): the list of data which is returned by the function "self.scan_data"
-        nb_channel_activated (int): the number of active channels
-    
-    Return:
-        list_signal_arranged (list): the list of arranged data  
     """
+
     def get_data(self, list_signal_non_arranged, nb_channel_activated):
         list_signal_arranged = []
-        for k in range(nb_channel_activated):
-            list_signal_arranged.append(np.array(list_signal_non_arranged[k]))
-        i = nb_channel_activated
-        while i <= len(list_signal_non_arranged) - nb_channel_activated:
-            for j in range(nb_channel_activated):
-                list_signal_arranged[j] = np.append(list_signal_arranged[j], list_signal_non_arranged[i + j])
-            i = i + nb_channel_activated
+        if len(list_signal_non_arranged) != 0:
+            for k in range(nb_channel_activated):
+                list_signal_arranged.append(np.array(list_signal_non_arranged[k]))
+            i = nb_channel_activated
+            while i <= len(list_signal_non_arranged) - nb_channel_activated:
+                for j in range(nb_channel_activated):
+                    list_signal_arranged[j] = np.append(list_signal_arranged[j],list_signal_non_arranged[i + j])
+                i = i + nb_channel_activated
         return list_signal_arranged
 
     def ini_detector(self, controller=None):
@@ -242,6 +229,19 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
 
         self.ini_detector_init(old_controller=controller,
                                new_controller=mcc128(0))
+        
+        self.option = 0
+        self.channel_mask =1
+        
+        self.settings.child('channel_active', 'CH0H').setValue(True)
+        
+        self.data_signal = self.scan_data(self.settings['num_sample'], self.settings['frequency'],self.channel_mask)
+        xaxis = Axis('time', 'seconds', np.arange(0, self.settings['num_sample'] * 1 / self.settings['frequency'], 1 / self.settings['frequency']), 0)
+
+        self.dte_signal.emit(DataToExport('myplugin', data=[DataFromPlugins(name='Mock1', data=self.data_signal,
+                                                                            dim='Data1D', labels=['CH0H'],
+                                                                            axes=[xaxis])]))
+        
 
         info = "Whatever info you want to log"
         initialized = True
@@ -266,26 +266,25 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
 
         self.option = 0
 
-        if self.settings['trigger_active']:
+        if self.settings['trigger_active'] == True:
             self.option += 8
 
-        if self.settings['extclock']:
+        if self.settings['extclock'] == True:
             self.option += 4
 
         self.channel_mask, self.num_channels, label = self.active_channel()
 
         num_sample = self.settings['num_sample']
         freq = self.settings['frequency']
-
-        # get and store the list of acquired data into signal
+        
         signal = self.scan_data(num_sample, freq, self.channel_mask)
-        # arrange the data of 'signal'
-        # 'data_signal' is a list of array in which each array corresponds to the acquired data of each active channel
-        data_signal = self.get_data(signal, self.num_channels)
+        
+        if len(signal) != 0:
+            self.data_signal = self.get_data(signal, self.num_channels)
 
         xaxis = Axis('time', 'seconds', np.arange(0, num_sample * 1 / freq, 1 / freq), 0)
 
-        self.dte_signal.emit(DataToExport('myplugin', data=[DataFromPlugins(name='Mock1', data=data_signal,
+        self.dte_signal.emit(DataToExport('myplugin', data=[DataFromPlugins(name='Mock1', data=self.data_signal,
                                                                             dim='Data1D', labels=label,
                                                                             axes=[xaxis])]))
 

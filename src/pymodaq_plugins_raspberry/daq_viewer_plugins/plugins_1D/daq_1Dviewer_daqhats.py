@@ -26,10 +26,10 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
          'limits': ['RISING_EDGE', 'FALLING_EDGE', 'ACTIVE_HIGH',
                     'ACTIVE_LOW']},
         {'title': 'External_clock', 'name': 'extclock_mode', 'type': 'bool', 'value': False},
-        {'title': 'External sampling rate', 'name': 'extclock_rate', 'type': 'int', 'value': 0},
+        {'title': 'External sampling rate(Hz)', 'name': 'extclock_rate', 'type': 'int', 'value': 0},
         {'title': 'Number of samples:', 'name': 'num_sample', 'type': 'int', 'value': 1000, 'min': 0},
-        {'title': 'Sampling rate :', 'name': 'sampling_rate', 'type': 'int', 'value': 10000, 'min': 0, 'max': 100000},
-        {'title': 'Range', 'name': 'range', 'type': 'list', 'value': 10, 'limits': [10, 5, 2, 1]},
+        {'title': 'Sampling rate(Hz) :', 'name': 'sampling_rate', 'type': 'int', 'value': 10000, 'min': 0, 'max': 100000},
+        {'title': 'Range(V)', 'name': 'range', 'type': 'list', 'value': 10, 'limits': [10, 5, 2, 1]},
         {'title': 'Mode', 'name': 'mode', 'type': 'list', 'value': 'SINGLE_END',
          'limits': ['SINGLE_ENDED', 'DIFFERENTIAL']},
         {'title': "Channel", 'name': 'channel_on', 'type': 'group', 'children': [
@@ -60,9 +60,7 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         self.list_channel_names = []
 
     def commit_settings(self, param: Parameter):
-
         """Apply the consequences of a change of value in the detector settings
-
         Parameters
         ----------
         param: Parameter
@@ -83,10 +81,10 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
 
     def scan_data(self, totalsamples: int, scan_rate: int, name_channel: int):
 
-        """
-        This start a hardware-paced analog input channel scan . Then this function reads and return the data from the
-        buffer.The aggregate sampling rate of all activated channels can't exceed 100kS/s
+        """This starts a hardware-paced analog input channel scan . Then this function reads and returns the data from the
+        buffer.
 
+        The aggregate sampling rate of all activated channels can't exceed 100kS/s
         =================    ================
         Channels activate    Scan rate (kS/s)
         =================    ================
@@ -101,7 +99,7 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         ==============      ================
 
         Parameters
-        ----------
+        -----------
         totalsamples: int
             The numbers of samples which we want to aquire
         scan_rate: int
@@ -109,7 +107,9 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         name_channel: int
             The bit mask of the channels activated
 
-        Returns: list
+        Returns
+        -------
+        voltage.data : list
             The list of data scanned
         """
 
@@ -153,8 +153,8 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
 
     def set_trigger(self):
 
-        """
-        This reads the sets the external trigger mode input of the card
+        """Read and Set the external trigger mode input of the card
+
         There are 4 type available TRIGGER mode:
             *RISING_EDGE: Start the scan when the trigger signal transition from LOW to HIGH
             *FALLING_EDGE: Start the scan when the trigger signal transition from HIGH to LOW
@@ -177,8 +177,7 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
 
     def active_channel(self):
 
-        """
-        This function reads the states of channels on the interface and sets the bit mask of the active channels,
+        """This function reads the states of channels on the interface and sets the bit mask of the active channels,
         the number of activated channels, and a list of the names of these channels.
 
         """
@@ -221,11 +220,10 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         self.channel_mask, self.num_channels, self.label = bit_mask, number_channels, name_channels
 
     def get_data(self, list_signal_non_arranged, nb_channel_activated):
-        """
+        """ Arrange the list of data received from activated channels
 
         This methode arranges the list of data received from activated channels. It converts this list of data into a list
         of numpy arrays. The order of each array corresponds to the order of each activated channel on the interface (from CH0H to CH3L)
-
         Example: When you activate 2 channels CHOH and CH2L, this function will return a list of 2 arrays: the first one is
         data of channel CH0H and the second one is data of channel CH2L
 
@@ -240,7 +238,6 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         -------
         list_signal_arranged : list of numpy array
             list of data of each channel arranged
-
         """
         list_signal_arranged = []
         if len(list_signal_non_arranged) != 0:
@@ -335,7 +332,7 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         if len(signal) != 0:  # Condition to avoid empty data error
             self.data_signal = self.get_data(signal, self.num_channels)
 
-        self.dte_signal.emit(DataToExport('myplugin', data=[DataFromPlugins(name='Mock1', data=self.data_signal,
+        self.dte_signal.emit(DataToExport('mcc128_plugin', data=[DataFromPlugins(name='mcc128', data=self.data_signal,
                                                                             dim='Data1D',
                                                                             labels=self.list_channel_names,
                                                                             axes=[xaxis])]))

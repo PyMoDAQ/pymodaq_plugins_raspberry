@@ -26,7 +26,7 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
          'limits': ['RISING_EDGE', 'FALLING_EDGE', 'ACTIVE_HIGH',
                     'ACTIVE_LOW']},
         {'title': 'External_clock', 'name': 'extclock_mode', 'type': 'bool', 'value': False},
-        {'title': 'External sampling rate(Hz)', 'name': 'extclock_rate', 'type': 'int', 'value': 0},
+        {'title': 'External sampling rate(Hz)', 'name': 'extclock_rate', 'type': 'int', 'value': 0, 'visible': False},
         {'title': 'Number of samples:', 'name': 'num_sample', 'type': 'int', 'value': 1000, 'min': 0},
         {'title': 'Sampling rate(Hz) :', 'name': 'sampling_rate', 'type': 'int', 'value': 10000, 'min': 0, 'max': 100000},
         {'title': 'Range(V)', 'name': 'range', 'type': 'list', 'value': 10, 'limits': [10, 5, 2, 1]},
@@ -78,6 +78,8 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         elif param.name() == 'sampling_rate':
             sample_rate_real = self.controller.a_in_scan_actual_rate(self.num_channels, param.value())
             param.setValue(sample_rate_real)
+        elif param.name() == 'extclock_mode':
+            self.settings.child('extclock_rate').setOpts(visible = param.value())
 
     def scan_data(self, totalsamples: int, scan_rate: int, name_channel: int):
 

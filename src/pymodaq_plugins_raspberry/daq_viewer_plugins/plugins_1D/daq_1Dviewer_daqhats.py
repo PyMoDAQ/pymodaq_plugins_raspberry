@@ -271,20 +271,6 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         self.ini_detector_init(old_controller=controller,
                                new_controller=mcc128(0))
 
-        self.option = 0
-        self.channel_mask = 1
-
-        self.settings.child('channel_on', 'CH0H').setValue(True)
-
-        self.data_signal = self.scan_data(self.settings['num_sample'], self.settings['sampling_rate'],
-                                          self.channel_mask)
-        xaxis = Axis('time', 'seconds', np.arange(0, self.settings['num_sample'] * 1 / self.settings['sampling_rate'],
-                                                  1 / self.settings['sampling_rate']), 0)
-
-        self.dte_signal.emit(DataToExport('myplugin', data=[DataFromPlugins(name='Mock1', data=self.data_signal,
-                                                                            dim='Data1D', labels=['CH0H'],
-                                                                            axes=[xaxis])]))
-
         info = ""
         initialized = True
         return info, initialized

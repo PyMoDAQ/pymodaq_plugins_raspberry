@@ -53,6 +53,7 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         self.controller: mcc128 = None
         self.option = 0
         self.mode = 0
+        self.trigger_mode = 0
         self.range = 0
         self.channel_mask = 0
         self.num_channels = 0
@@ -82,7 +83,6 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
             self.settings.child('extclock_rate').setOpts(visible = param.value())
 
     def scan_data(self, totalsamples: int, scan_rate: int, name_channel: int):
-
         """This starts a hardware-paced analog input channel scan . Then this function reads and returns the data from the
         buffer.
 
@@ -122,7 +122,6 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         return voltage.data
 
     def set_range(self):
-
         """ This sets the analog input range to one of these values:
             +/- 10V
             +/- 5V
@@ -141,7 +140,6 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         self.controller.a_in_range_write(self.range)
 
     def set_mode(self):
-
         """ This sets the analog input mode to one of two values
             * Single ended
             * Differential
@@ -154,7 +152,6 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         self.controller.a_in_mode_write(self.mode)
 
     def set_trigger(self):
-
         """Read and Set the external trigger mode input of the card
 
         There are 4 type available TRIGGER mode:
@@ -165,20 +162,19 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
 
         """
 
-        global Tmode
         mode_trigger = self.settings['trigger_mode']
         if mode_trigger == 'RISING_EDGE':
-            Tmode = 0
+            self.trigger_mode = TriggerModes.RISING_EDGE
         elif mode_trigger == 'FALLING_EDGE':
-            Tmode = 1
+            self.trigger_mode = TriggerModes.FALLING_EDGE
         elif mode_trigger == 'ACTIVE_HIGH':
-            Tmode = 2
+            self.trigger_mode = TriggerModes.ACTIVE_HIGH
         elif mode_trigger == 'ACTIVE_LOW':
-            Tmode = 3
-        self.controller.trigger_mode(Tmode)
+            self.trigger_mode = TriggerModes.ACTIVE_LOW
+        self.controller.trigger_mode(self.trigger_mode)
+
 
     def active_channel(self):
-
         """This function reads the states of channels on the interface and sets the bit mask of the active channels,
         the number of activated channels, and a list of the names of these channels.
 
@@ -280,7 +276,6 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
         """Terminate the communication protocol"""
 
     def grab_data(self, Naverage=1, **kwargs):
-
         """Start a grab from the detector
 
         Parameters

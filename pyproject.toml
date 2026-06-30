@@ -13,7 +13,11 @@ name = "pymodaq_plugins_raspberry"
 description = 'Set of instrument plugins to use with a raspberry'
 dependencies = [
     "pymodaq>=5.0.0",
-    'picamera2',
+    'pyzmq',
+    # picamera2 ne s'installe que sur Linux/Raspberry (il dépend de python-prctl,
+    # Linux-only). Sur la machine de contrôle (Windows/macOS), le plugin reste
+    # installable ; seul le viewer PiCamera est alors indisponible.
+    'picamera2; platform_system == "Linux"',
 ]
 
 authors = [

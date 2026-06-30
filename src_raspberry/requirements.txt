@@ -1,0 +1,3 @@
+pyzmq
+smbus2
+pigpio

@@ -12,6 +12,41 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.9] - 2026-09-27
+
+### Corrigé
+- `version.json` et `CHANGELOG.md` resynchronisés avec l'historique git : les
+  versions 5.4.5 à 5.4.8 avaient été commitées sans mise à jour de ces fichiers.
+
+## [5.4.8] - 2026-06-30
+
+### Corrigé
+- `DAQ_Move_MoveRasp` : gestion des unités — la mise à l'échelle PyMoDAQ
+  (`set_position_with_scaling`) est réactivée, le paramètre `scaling` est masqué,
+  et `get_actuator_value` renvoie un `DataActuator` avec l'unité de l'axe.
+- `config_template.toml` : unités par défaut corrigées (`""` pour l'actionneur,
+  `"V"` pour le détecteur).
+
+## [5.4.7] - 2026-06-30
+
+### Corrigé
+- `DAQ_Move_MoveRasp` : les bornes de l'axe sont retrouvées par `title` (nom
+  d'axe affiché) au lieu de `name`.
+
+## [5.4.6] - 2026-06-29
+
+### Corrigé
+- `move_home` envoie un `DataActuator` au lieu d'un entier nu.
+- Texte de retour d'initialisation simplifié (`"Initialized"`).
+
+## [5.4.5] - 2026-06-29
+
+### Modifié
+- Retours de relecture de la pull request : modules renommés en `link_zmq.py` et
+  `config_components.py`, `DAQ_Move_MoveRasp` passé en multi-axes
+  (`is_multiaxes = True`), mise à jour des bornes factorisée dans
+  `update_move_settings`.
+
 ## [5.4.4] - 2026-06-10
 
 ### Modifié

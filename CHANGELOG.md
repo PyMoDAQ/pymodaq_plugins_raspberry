@@ -12,6 +12,19 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.14] - 2026-09-27
+
+### Corrigé
+- `src_raspberry/hardware/sensors.py`, `backend.py` : en simulation, chaque lecture de
+  capteur dure désormais le temps d'une vraie lecture sur Raspberry
+  (`SIMULATED_READ_TIME` : AHT10 80 ms, TMP102 et EMC2101 2 ms, PT100 8 ms). Le
+  serveur simulé répondait instantanément : avec deux viewers en acquisition
+  continue sans temps d'attente, il enchaînait près de 10 000 requêtes par seconde
+  et figeait l'interface PyMoDAQ (le journal Windows enregistrait un gel,
+  `AppHangTransient`). Le rythme tombe à environ 23 acquisitions par seconde pour
+  les deux viewers, comme sur le vrai banc, sans modifier les presets. Le chemin
+  matériel n'est pas modifié.
+
 ## [5.5.13] - 2026-09-27
 
 ### Corrigé

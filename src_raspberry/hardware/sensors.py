@@ -207,6 +207,18 @@ class CThermalModel:
         return round(min(100.0, max(0.0, humidity)), 2)
 
 
+## @brief Durée d'une lecture réelle sur Raspberry, par pilote (s), reproduite en simulation.
+#  Sans elle, le serveur simulé répond instantanément et une acquisition continue sans
+#  temps d'attente enchaîne des milliers de requêtes par seconde, au point de figer
+#  l'interface PyMoDAQ ; le vrai banc est naturellement limité par ces durées.
+SIMULATED_READ_TIME: dict = {
+    'AHT10':   0.080,   # attente de fin de mesure imposée par le capteur (voir CDriverAht10)
+    'TMP102':  0.002,   # transaction I2C + surcoût Python sur Raspberry
+    'EMC2101': 0.002,
+    'PT-100':  0.008,   # conversion de l'ADS1115 à 128 échantillons/s
+}
+
+
 class CDriverSimule(CSensorDriver):
     """!
     @brief Pilote de test pour retourner des valeurs simulées.
@@ -223,17 +235,22 @@ class CDriverSimule(CSensorDriver):
         self.coupling = 0.5
         ## @brief Canal lu quand la requête n'en précise pas ('temp' ou 'hum')
         self.defaultChannel = 'temp'
+        ## @brief Durée simulée d'une lecture (s)
+        self.readTime = 0.002
 
-    def AttachModel(self, model: CThermalModel, coupling: float, defaultChannel: str = 'temp') -> None:
+    def AttachModel(self, model: CThermalModel, coupling: float, defaultChannel: str = 'temp',
+                    readTime: float = 0.002) -> None:
         """!
         @brief Relie le capteur simulé au modèle thermique du banc.
         @param model Modèle thermique partagé par les capteurs simulés.
         @param coupling Couplage du capteur à la résistance (0 à 1).
         @param defaultChannel Canal lu par défaut ('hum' pour un capteur d'humidité).
+        @param readTime Durée simulée d'une lecture, celle du vrai capteur (s).
         """
         self.model = model
         self.coupling = coupling
         self.defaultChannel = defaultChannel
+        self.readTime = readTime
 
     def ReadValue(self, channel: str = None) -> float:
         """!
@@ -241,6 +258,7 @@ class CDriverSimule(CSensorDriver):
         @param channel Canal de mesure souhaité.
         @return Valeur simulée.
         """
+        time.sleep(self.readTime)  # durée d'une vraie lecture : le serveur n'est pas plus rapide que le banc
         channel = channel or self.defaultChannel
         if self.model is not None:
             if channel == 'hum':

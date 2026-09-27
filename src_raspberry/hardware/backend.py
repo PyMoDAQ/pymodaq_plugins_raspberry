@@ -5,7 +5,7 @@ from typing import Optional
 
 from .base import IHardwareBackend
 from .scanner import CScanner
-from .sensors import SENSOR_DRIVER_REGISTRY, CThermalModel
+from .sensors import SENSOR_DRIVER_REGISTRY, SIMULATED_READ_TIME, CThermalModel
 from .actuators import CActuatorManager
 #endregion
 
@@ -95,7 +95,8 @@ class HardwareBackend(IHardwareBackend):
                 sensorConfig = self.config.SENSORS_CONFIG[currentAddr]
                 sensorObj.AttachModel(thermalModel,
                                       sensorConfig.get('sim_coupling', 0.5),
-                                      'hum' if sensorConfig.get('units') == 'RH' else 'temp')
+                                      'hum' if sensorConfig.get('units') == 'RH' else 'temp',
+                                      SIMULATED_READ_TIME.get(sensorConfig.get('driver'), 0.002))
 
         return instantiatedMap
 

@@ -12,6 +12,12 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.4] - 2026-09-27
+
+### Corrigé
+- `config_template.toml` : `address_Rasp` passe de `192.158.235.2`, adresse
+  publique issue d'une coquille, à `192.168.235.2`, adresse de réseau privé.
+
 ## [5.5.3] - 2026-09-27
 
 ### Ajouté

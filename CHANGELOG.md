@@ -12,6 +12,17 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.19] - 2026-09-27
+
+### Corrigé
+- `hardware/link_zmq.py`, `multi_acquisition()` : le message d'erreur renvoyé par la
+  carte était écrasé par `-1` avant d'être journalisé (le journal affichait toujours
+  `READ ERROR - -1`) (P0.3). Il est désormais journalisé avec le composant concerné,
+  par exemple `READ ERROR - add 0x99 : Capteur introuvable`.
+- Une lecture ratée vaut `nan` au lieu de `-1` (une température plausible) : un
+  capteur en panne ne ressemble plus à un capteur qui mesure (P1.3). Vérifié :
+  `DataFromPlugins` et l'afficheur `Viewer0D` acceptent `nan`.
+
 ## [5.4.18] - 2026-09-27
 
 ### Corrigé

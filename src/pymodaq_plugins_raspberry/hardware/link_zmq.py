@@ -163,7 +163,8 @@ class ZMQLink:
         :param addresses: A list of addresses linked to multiples components
         :param pins: A list of pins linked to multiples components
         :return: A list of value read by each component,
-                order of the list : all the value of addresses, next, all the value of pins
+                order of the list : all the value of addresses, next, all the value of pins.
+                A failed reading is replaced by nan (and logged with the raspberry's message)
         """
         assert addresses is not None or pins is not None, "ERROR: hardware should have an address or a pin"
 
@@ -199,8 +200,12 @@ class ZMQLink:
 
         for i, elem in enumerate(inp_mq["value"]):
             if type(elem) != int and type(elem) != float:
-                inp_mq["value"][i] = -1
-                logger.warning(f"READ ERROR - {inp_mq['value'][i]}")
+                # log the raspberry's message before replacing it: nan cannot be mistaken for a measure
+                component = output["components"][i] if i < len(output["components"]) else {}
+                register = component.get("register", "?")
+                reason = elem.get("value", elem) if isinstance(elem, dict) else elem
+                logger.warning(f"READ ERROR - {register} {component.get(register, '?')} : {reason}")
+                inp_mq["value"][i] = float('nan')
 
         return inp_mq["value"]
 

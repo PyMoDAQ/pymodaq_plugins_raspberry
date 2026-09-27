@@ -17,7 +17,7 @@ def get_actuators_hardware(config : Config) -> list:
     for component in config("Raspberry", "ACTUATOR"):
         if 'COMPONENT' in component:
             try:
-                temp_tab.append(config("Raspberry", "ACTUATOR", component) | {'type': 'bool', 'default': False, 'value': False})
+                temp_tab.append({**config("Raspberry", "ACTUATOR", component), 'type': 'bool', 'default': False, 'value': False})
             except Exception as e:
                 logger.info(str(e))
     return temp_tab
@@ -37,7 +37,7 @@ def get_detectors_hardware(config: Config) -> list:
     for component in config("Raspberry", "DETECTOR"):
         if 'COMPONENT' in component:
             try:
-                temp_tab.append(config("Raspberry", "DETECTOR", component) | {'type': 'bool', 'default': False, 'value': False})
+                temp_tab.append({**config("Raspberry", "DETECTOR", component), 'type': 'bool', 'default': False, 'value': False})
             except Exception as e:
                 logger.info(str(e))
 

@@ -1,3 +1,6 @@
+# annotations such as list[str] | list[int] are evaluated at definition time before Python 3.10
+from __future__ import annotations
+
 import zmq
 import json
 import uuid

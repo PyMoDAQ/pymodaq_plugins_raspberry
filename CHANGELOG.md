@@ -12,6 +12,17 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.7] - 2026-09-27
+
+### Corrigé
+- Compatibilité avec Python 3.8 et 3.9, déclarés par `pyproject.toml` et par
+  PyMoDAQ 5 (`requires-python >= 3.8`) :
+  - `hardware/link_zmq.py` : `from __future__ import annotations`. Les annotations
+    `list[str] | list[int]` et `str | int` étaient évaluées à la définition des
+    méthodes et levaient une `TypeError` à l'import avant Python 3.10.
+  - `hardware/config_components.py` : l'union de dictionnaires `a | b` (Python 3.9+)
+    est remplacée par `{**a, ...}`.
+
 ## [5.5.6] - 2026-09-27
 
 ### Corrigé

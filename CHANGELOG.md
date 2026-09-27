@@ -12,6 +12,15 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.11] - 2026-09-27
+
+### Corrigé
+- `src_raspberry/hardware/actuators.py` : « Connexion à pigpio établie. » était
+  journalisé en INFO à chaque lecture ou consigne d'actionneur, donc deux fois
+  par lecture de capteur en simulation depuis le modèle thermique (5.5.0). Le
+  message est désormais écrit une seule fois, à la création du gestionnaire, et la
+  vérification de connexion reste silencieuse.
+
 ## [5.5.10] - 2026-09-27
 
 ### Corrigé

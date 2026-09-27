@@ -219,6 +219,7 @@ class CActuatorManager:
         self._actuators: dict = {}
 
         self._CheckConnected()
+        logger.info("Connexion à pigpio établie.")
         self._LoadConfig(actuatorsConfig)
 
     def _CheckConnected(self) -> None:
@@ -228,7 +229,6 @@ class CActuatorManager:
         """
         if not self.piClient.connected:
             raise CPigpioNotConnectedError("Impossible de se connecter à pigpiod.")
-        logger.info("Connexion à pigpio établie.")
 
     def _LoadConfig(self, actuatorsConfig: list) -> None:
         """!

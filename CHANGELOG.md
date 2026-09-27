@@ -12,6 +12,13 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.12] - 2026-09-27
+
+### Corrigé
+- `src_raspberry/hardware/actuators.py` : en simulation, les actionneurs relisaient
+  toujours `1` (conversion d'un `MagicMock`). Un `CSimulatedPi` mémorise désormais
+  la consigne de chaque broche : régler le ventilateur à 200 relit 200.
+
 ## [5.4.11] - 2026-09-27
 
 ### Corrigé

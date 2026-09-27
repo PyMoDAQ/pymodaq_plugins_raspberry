@@ -81,7 +81,8 @@ python main.py
 
 > **Mode simulation** : si le bus I2C ou le démon pigpio sont inaccessibles
 > (ex. exécution sur un PC), le serveur bascule automatiquement en simulation
-> (objets `MagicMock`) pour tester la communication réseau sans la Raspberry Pi.
+> (bus I2C factice, actionneurs simulés qui mémorisent leur consigne) pour tester
+> la communication réseau sans la Raspberry Pi.
 
 ## 📡 Protocole de communication (JSON)
 

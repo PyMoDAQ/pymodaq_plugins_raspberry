@@ -3,7 +3,6 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
-from unittest.mock import MagicMock
 
 # pigpio n'est installé que sur la Raspberry : son absence (PC de démonstration,
 # Windows) ne doit pas empêcher le serveur de démarrer en mode simulation.
@@ -155,6 +154,44 @@ ACTUATOR_DRIVER_REGISTRY: dict = {
 }
 #endregion
 
+#region Simulation
+class CSimulatedPi:
+    """!
+    @brief Remplaçant de pigpio.pi utilisé en mode simulation.
+
+    Mémorise la consigne appliquée à chaque broche pour que la valeur relue soit
+    celle écrite (un MagicMock renverrait toujours 1).
+    """
+
+    ## @brief Toujours « connecté » : aucun démon à joindre
+    connected = True
+
+    def __init__(self):
+        ## @brief Dernière consigne appliquée, indexée par broche
+        self._levels: dict = {}
+
+    def set_mode(self, pin: int, mode: int) -> None:
+        pass
+
+    def set_PWM_frequency(self, pin: int, frequency: int) -> int:
+        return frequency
+
+    def set_PWM_dutycycle(self, pin: int, dutycycle: int) -> None:
+        self._levels[pin] = dutycycle
+
+    def get_PWM_dutycycle(self, pin: int) -> int:
+        return self._levels.get(pin, 0)
+
+    def write(self, pin: int, level: int) -> None:
+        self._levels[pin] = level
+
+    def read(self, pin: int) -> int:
+        return self._levels.get(pin, 0)
+
+    def stop(self) -> None:
+        pass
+#endregion
+
 #region Gestionnaire Actionneurs
 class CActuatorManager:
     """!
@@ -175,9 +212,7 @@ class CActuatorManager:
 
         if self.piClient is None or not self.piClient.connected:
             logger.info("pigpio non connecté : passage en mode simulation")
-            self.piClient = MagicMock()
-            self.piClient.connected = True
-            self.piClient.read_value = 1
+            self.piClient = CSimulatedPi()
 
         ## @brief Dictionnaire des pilotes d'actionneurs indexé par PIN
         self._actuators: dict = {}

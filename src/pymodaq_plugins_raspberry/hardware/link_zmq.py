@@ -47,7 +47,8 @@ class ZMQLink:
         :param port: The raspberry's communication port (5555 by default)
         :return: void - Start the ZMQ connection
         """
-        assert ip_address is not None, "ERROR - ip address not set"
+        if ip_address is None:
+            raise ValueError("ERROR - ip address not set")
 
         self.close()  # releases the previous socket and context when reopening
         self.__context = zmq.Context()
@@ -166,7 +167,8 @@ class ZMQLink:
                 order of the list : all the value of addresses, next, all the value of pins.
                 A failed reading is replaced by nan (and logged with the raspberry's message)
         """
-        assert addresses is not None or pins is not None, "ERROR: hardware should have an address or a pin"
+        if addresses is None and pins is None:
+            raise ValueError("ERROR: hardware should have an address or a pin")
 
         output = {
                 "type": "AQ-MULTI",

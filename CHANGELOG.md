@@ -12,6 +12,13 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.5] - 2026-09-27
+
+### Corrigé
+- `hardware/link_zmq.py` : les validations d'entrée d'`open()` (adresse IP absente)
+  et de `multi_acquisition()` (ni adresse ni broche) lèvent une `ValueError`
+  explicite. Les `assert` utilisés jusqu'ici disparaissent sous `python -O`.
+
 ## [5.5.4] - 2026-09-27
 
 ### Corrigé

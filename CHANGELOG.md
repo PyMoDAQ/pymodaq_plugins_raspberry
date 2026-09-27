@@ -12,6 +12,13 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.22] - 2026-09-27
+
+### Corrigé
+- `DAQ_Move_MoveRasp.move_value` : un pilotage refusé ou sans réponse (broche
+  inconnue, timeout) n'apparaissait que dans le journal. Il s'affiche désormais
+  aussi en statut dans PyMoDAQ, comme pour le viewer.
+
 ## [5.4.21] - 2026-09-27
 
 ### Corrigé

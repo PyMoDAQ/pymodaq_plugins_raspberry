@@ -2,6 +2,7 @@ from pint.facets.numpy import quantity
 from pymodaq.control_modules.move_utility_classes import (DAQ_Move_base, comon_parameters_fun, main,
                                                           DataActuator, DataActuatorType)
 
+from pymodaq_utils.utils import ThreadCommand
 from pymodaq_gui.parameter import Parameter
 
 from ..hardware.link_zmq import ZMQLink, DEFAULT_TIMEOUT_MS
@@ -204,6 +205,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
                 logger.info(f"Move : {access_variables} -> {value} | Output : {output}")
             else:
                 logger.warning(output)
+                self.emit_status(ThreadCommand('Update_Status', [f"Move {output}", 'log']))
 
         else:
             logger.warning("Input value not in the correct format")

@@ -12,6 +12,14 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.21] - 2026-09-27
+
+### Corrigé
+- `DAQ_0DViewer_ViewRasp.grab_data` : une acquisition sans aucun composant coché
+  levait `TypeError: Data should be an non-empty list` (PyMoDAQ refuse les données
+  vides). Le viewer émet désormais une voie `nan` intitulée
+  « no component selected » et affiche un statut invitant à cocher un composant.
+
 ## [5.4.20] - 2026-09-27
 
 ### Corrigé

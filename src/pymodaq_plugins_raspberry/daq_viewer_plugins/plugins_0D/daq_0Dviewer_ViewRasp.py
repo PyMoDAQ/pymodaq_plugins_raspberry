@@ -180,6 +180,15 @@ class DAQ_0DViewer_ViewRasp(DAQ_Viewer_base):
                     labels_tab.append(elem.opts['name'])
                 except Exception as e:
                     logger.info(f"ERROR - NO ELEMENTS WITH NAME : {str(e)}")
+
+        if not labels_tab:
+            # PyMoDAQ refuses empty data: emit a visible placeholder instead of crashing the grab
+            mess = "Viewer : no component selected, tick at least one component in the settings"
+            logger.warning(mess)
+            self.emit_status(ThreadCommand('Update_Status', [mess, 'log']))
+            self.dte_signal.emit(DataToExport(name='ZMQViewer', data=[DataFromPlugins(
+                name='Viewer', data=[np.array([float('nan')])], dim='Data0D', labels=['no component selected'])]))
+            return
                                                 # SPECIFIC LINE #
 ########################################################################################################################
         data_tot = self.controller.multi_acquisition(addresses=access_variables[0], pins=access_variables[1])

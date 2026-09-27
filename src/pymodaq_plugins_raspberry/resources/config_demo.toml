@@ -1,0 +1,65 @@
+# Demonstration configuration: the Raspberry's script (src_raspberry/main.py) runs in
+# simulation mode on the same PC as PyMoDAQ.
+# Usage: copy this file to ~/.pymodaq/config_raspberry.toml (user configuration, it takes
+# precedence over the system-wide one), then restart PyMoDAQ.
+# The components below match the default bench described in src_raspberry/config.py.
+
+[Raspberry]
+address_Rasp = '127.0.0.1'
+port = '5555'
+timeout_ms = 2000 # maximum wait for a Raspberry's response, in milliseconds
+
+# Actuators: driven by their GPIO pin (PWM duty cycle 0-255)
+[Raspberry.ACTUATOR.COMPONENT1]
+title = "Ventilateur"
+name = "ventilateur"
+units = ""
+min = "0"
+max = "255"
+address = "None"
+pin = "18"
+
+[Raspberry.ACTUATOR.COMPONENT2]
+title = "Resistance"
+name = "resistance"
+units = ""
+min = "0"
+max = "255"
+address = "None"
+pin = "23"
+
+# Detectors: read by their I2C address
+[Raspberry.DETECTOR.COMPONENT1]
+title = "T resistance"
+name = "t_resistance"
+units = "°C"
+address = "0x48"
+pin = "None"
+
+[Raspberry.DETECTOR.COMPONENT2]
+title = "T dissipateur"
+name = "t_dissipateur"
+units = "°C"
+address = "0x49"
+pin = "None"
+
+[Raspberry.DETECTOR.COMPONENT3]
+title = "T sortie"
+name = "t_sortie"
+units = "°C"
+address = "0x4B"
+pin = "None"
+
+[Raspberry.DETECTOR.COMPONENT4]
+title = "T entree"
+name = "t_entree"
+units = "°C"
+address = "0x4A"
+pin = "None"
+
+[Raspberry.DETECTOR.COMPONENT5]
+title = "RH sortie"
+name = "rh_sortie"
+units = "RH"
+address = "0x38"
+pin = "None"

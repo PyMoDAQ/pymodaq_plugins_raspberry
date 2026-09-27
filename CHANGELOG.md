@@ -12,6 +12,16 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.1] - 2026-09-27
+
+### Ajouté
+- `resources/config_demo.toml` : configuration de démonstration côté PC, alignée
+  sur le banc par défaut de `src_raspberry/config.py`. Adresse `127.0.0.1`,
+  ventilateur (broche 18) et résistance (broche 23), cinq capteurs I2C (0x48,
+  0x49, 0x4B, 0x4A, 0x38). À copier vers `~/.pymodaq/config_raspberry.toml`. Avec
+  la configuration du modèle, les composants n'existent pas sur la carte simulée
+  et toutes les voies valent `nan`.
+
 ## [5.5.0] - 2026-09-27
 
 ### Ajouté

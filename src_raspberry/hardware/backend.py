@@ -3,8 +3,6 @@ import dataclasses
 import logging
 from typing import Optional
 
-from smbus2 import SMBus
-
 from .base import IHardwareBackend
 from .scanner import CScanner
 from .sensors import SENSOR_DRIVER_REGISTRY
@@ -35,8 +33,11 @@ class HardwareBackend(IHardwareBackend):
         """
         isSimulationEnv = False
         try:
+            # Import local : smbus2 dépend de fcntl (Unix uniquement). Sous Windows,
+            # l'import échoue et le serveur doit tout de même démarrer en simulation.
+            from smbus2 import SMBus
             i2cBus = SMBus(configModule.I2C_BUS_ID)
-        except (PermissionError, FileNotFoundError, OSError):
+        except (ImportError, PermissionError, FileNotFoundError, OSError):
             from unittest.mock import MagicMock
             i2cBus = MagicMock()
             isSimulationEnv = True

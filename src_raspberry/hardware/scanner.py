@@ -1,6 +1,5 @@
 #region Imports
 import logging
-from smbus2 import SMBus
 #endregion
 
 #region Logger
@@ -25,6 +24,8 @@ class CScanner:
         logger.info("Scan du bus I2C...")
 
         try:
+            # Import local : smbus2 est indisponible hors Linux (dépend de fcntl)
+            from smbus2 import SMBus
             with SMBus(busId) as bus:
                 # La plage standard I2C va de 0x03 à 0x77
                 for currentAddress in range(0x03, 0x78):

@@ -12,6 +12,14 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.10] - 2026-09-27
+
+### Corrigé
+- `src_raspberry/hardware/backend.py`, `scanner.py` : import de `smbus2` rendu local.
+  `smbus2` dépend de `fcntl` (Unix uniquement) : sous Windows, l'import échouait au
+  chargement du module et `main.py` ne démarrait pas. L'échec d'import déclenche
+  désormais le mode simulation, comme un bus I2C absent.
+
 ## [5.4.9] - 2026-09-27
 
 ### Corrigé

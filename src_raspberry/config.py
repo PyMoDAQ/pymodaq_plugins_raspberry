@@ -66,42 +66,50 @@ ACTUATORS_CONFIG = [
 
 #region Configuration Capteurs
 ## @brief Configuration des capteurs détectables sur le bus I2C
+#  'sim_coupling' (optionnel, mode simulation uniquement) : proximité du capteur
+#  avec la résistance chauffante, de 0 (air ambiant) à 1 (au contact).
 SENSORS_CONFIG = {
     CAPTEUR_AHT10: {
         'driver': 'AHT10',
         'title': 'aht10',
         'name': 'rh_sortie',
         'units': 'RH',
+        'sim_coupling': 0.5,
     },
     CAPTEUR_TMP102: {
         'driver': 'TMP102',
         'title': 'tmp102',
         'name': 't_resistance',
         'units': '°C',
+        'sim_coupling': 1.0,
     },
     0x49: {
         'driver': 'TMP102',
         'title': 'tmp102',
         'name': 't_dissipateur',
         'units': '°C',
+        'sim_coupling': 0.7,
     },
     0x4A: {
         'driver': 'TMP102',
         'title': 'tmp102',
         'name': 't_entree',
         'units': '°C',
+        'sim_coupling': 0.1,
     },
     0x4B: {
         'driver': 'TMP102',
         'title': 'tmp102',
         'name': 't_sortie',
         'units': '°C',
+        'sim_coupling': 0.5,
     },
     CAPTEUR_EMC2101: {
         'driver': 'EMC2101',
         'title': 'emc2101',
         'name': 'T_emc',
         'units': '°C',
+        'sim_coupling': 0.3,
     },
     'default': {
         'driver': 'Unknown',

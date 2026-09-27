@@ -12,6 +12,24 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.0] - 2026-09-27
+
+### Ajouté
+- `src_raspberry/hardware/sensors.py` : `CThermalModel`, un modèle thermique du
+  premier ordre utilisé **uniquement en simulation**. La résistance chauffe le banc
+  (+40 °C à pleine chauffe, constante de temps de 60 s), le ventilateur accélère
+  les pertes (plateau ramené vers +12 °C), l'ambiance dérive lentement
+  (22 °C ± 0,5 °C) et chaque mesure porte un léger bruit. L'humidité relative
+  baisse quand l'air se réchauffe.
+- `CDriverSimule` : relié au modèle, il renvoie des valeurs qui évoluent et
+  réagissent aux actionneurs, au lieu de tirages aléatoires indépendants. Sans
+  modèle, il garde l'ancien comportement.
+- `src_raspberry/hardware/backend.py` : en simulation, les capteurs simulés
+  partagent ce modèle, alimenté par les consignes des actionneurs (repérés par leur
+  nom : `resistance`, `ventilateur`). Le chemin matériel réel n'est pas modifié.
+- `src_raspberry/config.py` : clé optionnelle `sim_coupling` par capteur, qui règle
+  sa proximité avec la résistance (0 : air ambiant, 1 : au contact).
+
 ## [5.4.24] - 2026-09-27
 
 ### Supprimé

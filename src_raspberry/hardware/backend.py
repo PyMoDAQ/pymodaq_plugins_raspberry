@@ -5,7 +5,7 @@ from typing import Optional
 
 from .base import IHardwareBackend
 from .scanner import CScanner
-from .sensors import SENSOR_DRIVER_REGISTRY
+from .sensors import SENSOR_DRIVER_REGISTRY, CThermalModel
 from .actuators import CActuatorManager
 #endregion
 
@@ -86,6 +86,16 @@ class HardwareBackend(IHardwareBackend):
                 logger.info(f"Capteur '{sensorConfig.get('name', '?')}' ({driverName}) instancié @ {hex(currentAddr)}")
             else:
                 logger.warning("Driver '%s' inconnu pour %s — ignoré.", driverName, hex(currentAddr))
+
+        if isSimulation:
+            # Simulation uniquement : les capteurs simulés partagent un modèle thermique
+            # piloté par les actionneurs (la résistance chauffe, le ventilateur refroidit)
+            thermalModel = CThermalModel(self.actuatorManager, self.config.ACTUATORS_CONFIG)
+            for currentAddr, sensorObj in instantiatedMap.items():
+                sensorConfig = self.config.SENSORS_CONFIG[currentAddr]
+                sensorObj.AttachModel(thermalModel,
+                                      sensorConfig.get('sim_coupling', 0.5),
+                                      'hum' if sensorConfig.get('units') == 'RH' else 'temp')
 
         return instantiatedMap
 

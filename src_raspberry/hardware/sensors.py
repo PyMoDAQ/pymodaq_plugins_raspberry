@@ -1,4 +1,5 @@
 #region Imports
+import math
 import random
 import time
 import logging
@@ -123,17 +124,128 @@ class CDriverEmc2101(CSensorDriver):
             logger.warning("Erreur lecture EMC2101 @%s : %s", hex(self.addr), exc)
             return None
 
+class CThermalModel:
+    """!
+    @brief Modèle thermique grossier du banc, utilisé uniquement en simulation.
+
+    Modèle du premier ordre : la résistance chauffe le banc, les pertes vers
+    l'ambiant augmentent avec le ventilateur. L'échauffement est intégré de façon
+    exacte entre deux lectures ; chaque capteur simulé le lit avec son propre
+    couplage, sur une ambiance qui dérive lentement, avec un léger bruit.
+    """
+
+    ## @brief Température ambiante moyenne (°C)
+    AMBIENT = 22.0
+    ## @brief Amplitude de la dérive lente de l'ambiance (°C)
+    DRIFT = 0.5
+    ## @brief Période de la dérive de l'ambiance (s)
+    DRIFT_PERIOD = 600.0
+    ## @brief Échauffement à pleine chauffe sans ventilation (°C)
+    HEATER_RISE = 40.0
+    ## @brief Multiplicateur des pertes ajouté par le ventilateur à plein régime
+    FAN_GAIN = 2.3
+    ## @brief Constante de temps sans ventilation (s)
+    TIME_CONSTANT = 60.0
+    ## @brief Écart-type du bruit de mesure (°C)
+    NOISE = 0.05
+
+    def __init__(self, actuatorManager, actuatorsConfig: list):
+        """!
+        @brief Constructeur d'initialisation.
+        @param actuatorManager Gestionnaire d'actionneurs, lu pour connaître les consignes.
+        @param actuatorsConfig Configuration des actionneurs (repérés par leur nom).
+        """
+        self._manager = actuatorManager
+        ## @brief Actionneur chauffant et ventilateur (None si absents de la configuration)
+        self._heater = self._FindActuator(actuatorsConfig, ('resist', 'chauff', 'heat'))
+        self._fan = self._FindActuator(actuatorsConfig, ('ventil', 'fan'))
+        self._start = self._last = time.monotonic()
+        ## @brief Échauffement courant du banc au-dessus de l'ambiance (°C)
+        self._rise = 0.0
+
+    @staticmethod
+    def _FindActuator(actuatorsConfig: list, keywords: tuple):
+        """! @brief Premier actionneur dont le nom contient un des mots-clés. """
+        for actuator in actuatorsConfig:
+            if any(k in str(actuator.get('name', '')).lower() for k in keywords):
+                return actuator
+        return None
+
+    def _Level(self, actuator) -> float:
+        """! @brief Consigne courante de l'actionneur, ramenée entre 0 et 1. """
+        if actuator is None:
+            return 0.0
+        try:
+            low, high = float(actuator.get('min', 0)), float(actuator.get('max', 1))
+            value = float(self._manager.GetPinValue(actuator['pin']))
+            return min(1.0, max(0.0, (value - low) / (high - low))) if high > low else 0.0
+        except Exception:
+            return 0.0
+
+    def _Update(self) -> float:
+        """! @brief Fait évoluer l'échauffement jusqu'à maintenant. @return L'instant courant. """
+        now = time.monotonic()
+        elapsed, self._last = now - self._last, now
+        losses = 1.0 + self.FAN_GAIN * self._Level(self._fan)
+        target = self.HEATER_RISE * self._Level(self._heater) / losses
+        self._rise = target + (self._rise - target) * math.exp(-elapsed * losses / self.TIME_CONSTANT)
+        return now
+
+    def _Ambient(self, now: float) -> float:
+        """! @brief Ambiance qui dérive lentement autour de AMBIENT. """
+        return self.AMBIENT + self.DRIFT * math.sin(2 * math.pi * (now - self._start) / self.DRIFT_PERIOD)
+
+    def Temperature(self, coupling: float) -> float:
+        """! @brief Température vue par un capteur plus ou moins proche de la résistance (couplage 0 à 1). """
+        now = self._Update()
+        return round(self._Ambient(now) + coupling * self._rise + random.gauss(0.0, self.NOISE), 2)
+
+    def Humidity(self, coupling: float) -> float:
+        """! @brief Humidité relative : elle baisse quand l'air se réchauffe (environ -1,5 %RH/°C). """
+        self._Update()
+        humidity = 50.0 - 1.5 * coupling * self._rise + random.gauss(0.0, 0.2)
+        return round(min(100.0, max(0.0, humidity)), 2)
+
+
 class CDriverSimule(CSensorDriver):
     """!
     @brief Pilote de test pour retourner des valeurs simulées.
+
+    Relié à un CThermalModel, il renvoie des valeurs qui évoluent de façon
+    plausible et réagissent aux actionneurs ; sinon, des valeurs aléatoires.
     """
+
+    def __init__(self, bus, addr: int):
+        super().__init__(bus, addr)
+        ## @brief Modèle thermique partagé (None : valeurs aléatoires indépendantes)
+        self.model = None
+        ## @brief Couplage du capteur à la résistance (0 : ambiance, 1 : au contact)
+        self.coupling = 0.5
+        ## @brief Canal lu quand la requête n'en précise pas ('temp' ou 'hum')
+        self.defaultChannel = 'temp'
+
+    def AttachModel(self, model: CThermalModel, coupling: float, defaultChannel: str = 'temp') -> None:
+        """!
+        @brief Relie le capteur simulé au modèle thermique du banc.
+        @param model Modèle thermique partagé par les capteurs simulés.
+        @param coupling Couplage du capteur à la résistance (0 à 1).
+        @param defaultChannel Canal lu par défaut ('hum' pour un capteur d'humidité).
+        """
+        self.model = model
+        self.coupling = coupling
+        self.defaultChannel = defaultChannel
 
     def ReadValue(self, channel: str = None) -> float:
         """!
-        @brief Retourne des valeurs factices.
+        @brief Retourne des valeurs simulées.
         @param channel Canal de mesure souhaité.
         @return Valeur simulée.
         """
+        channel = channel or self.defaultChannel
+        if self.model is not None:
+            if channel == 'hum':
+                return self.model.Humidity(self.coupling)
+            return self.model.Temperature(self.coupling)
         if channel == 'hum':
             return round(random.uniform(40.0, 60.0), 2)
         return round(random.uniform(20.0, 25.0), 2)

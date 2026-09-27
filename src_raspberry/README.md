@@ -58,6 +58,10 @@ vers `config.py`.
 
 ## 🛠️ Prérequis et installation
 
+> **Installation rapide** : le wiki DAP (https://wiki-plugins-dap-pymodaq.github.io/,
+> page *Downloads*) fournit un package qui réalise les étapes ci-dessous et installe
+> le serveur comme service démarrant avec la carte (`sudo bash install.sh`).
+
 1. **Activer l'I2C** : `sudo raspi-config` → Interfacing Options → I2C.
 2. **Démon pigpio** (pilotage matériel des GPIO) :
    ```bash

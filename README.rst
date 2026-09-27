@@ -35,6 +35,15 @@ Authors
 * Fabien Villedieu
 
 
+Documentation
+=============
+
+A step-by-step documentation of the ZMQ plugins (architecture, JSON protocol,
+Raspberry-side server, bench configuration) and ready-to-use installation packages
+(control computer and Raspberry Pi) are available on the DAP wiki:
+https://wiki-plugins-dap-pymodaq.github.io/
+
+
 Instruments
 ===========
 
@@ -51,7 +60,7 @@ Viewer0D
 
 * **ViewRasp**: read the sensors of the device (e.g. I2C sensors) wired to the
   Raspberry
-  
+
 Viewer1D
 ++++++++
 
@@ -73,10 +82,10 @@ Adapting the plugin to your setup
 
 Beware: some plugins are meant to be used with PyMoDAQ installed on the Raspberry directly:
 
- * **daqhats**
- * **picamera**
- 
-Some other are using the raspberry and the components plugged on it as an external DAQ connected to a computer. 
+* **daqhats**
+* **picamera**
+
+Some other are using the raspberry and the components plugged on it as an external DAQ connected to a computer.
 The computer and the Raspberry communicate over ZMQ:
 
 * **MoveRasp**
@@ -97,7 +106,7 @@ changed independently:
   another communication mean (serial, HTTP, ...) without touching the rest. On the
   Raspberry side, implement the transport interface (``ITransport``) and wire it in
   ``main.py``; on the PyMoDAQ side, provide a class exposing the same methods as
-  ``ZMQLink`` (``hardware/Link_PMQ.py``).
+  ``ZMQLink`` (``hardware/link_zmq.py``).
 
 * **The Raspberry ⇄ components communication.** Each sensor and each actuator is
   driven by an interchangeable driver selected from the bench configuration
@@ -115,7 +124,7 @@ changed independently:
   - **Raspberry side**: add an entry to the routing table ``_requestHandlers`` in
     ``src_raspberry/handlers/json_handler.py`` with its handler method, which
     delegates any hardware access to the hardware backend (``IHardwareBackend``);
-  - **PyMoDAQ side**: add a method to ``ZMQLink`` (``hardware/Link_PMQ.py``) that
+  - **PyMoDAQ side**: add a method to ``ZMQLink`` (``hardware/link_zmq.py``) that
     builds and sends the new request, then call it from the move/viewer plugins.
 
 
@@ -128,6 +137,48 @@ transport, JSON request handling, and hardware communication — each behind an
 interface, which is what makes the points above easy to adapt. See
 ``src_raspberry/README.md`` for installation and the JSON protocol.
 
+Start it with ``python main.py`` (options: ``--port <n>``, ``--verbose`` to log every
+request). It can also be installed as a service starting with the Raspberry Pi, using the
+installation package of the wiki.
+
+
+Configuration
++++++++++++++
+
+The PyMoDAQ side reads the ``[Raspberry]`` section of the plugin configuration file
+(``config_raspberry.toml`` in the PyMoDAQ user folder, created from
+``resources/config_template.toml``):
+
+* ``address_Rasp`` and ``port``: address of the Raspberry-side server;
+* ``timeout_ms``: maximum wait for a response (2000 ms by default). An unreachable or
+  frozen Raspberry gives an error message in PyMoDAQ, never a frozen interface;
+* ``[Raspberry.ACTUATOR.COMPONENTn]`` / ``[Raspberry.DETECTOR.COMPONENTn]``: one section
+  per component, identified by its GPIO ``pin`` (actuators) or its I2C ``address``
+  (sensors).
+
+
+Simulation mode (no hardware needed)
+++++++++++++++++++++++++++++++++++++
+
+If the I2C bus or the ``pigpio`` daemon are unavailable, or if no sensor answers, the
+server falls back to simulation: it then runs on any computer (Windows, macOS, Linux).
+The simulated temperatures follow a simple thermal model that reacts to the actuators
+(the heater warms, the fan cools), with realistic reading times. To try the whole chain
+on a single PC:
+
+#. start the server: ``python src_raspberry/main.py``;
+#. use ``resources/config_demo.toml`` as plugin configuration (``127.0.0.1``);
+#. in PyMoDAQ, initialize **ViewRasp** and **MoveRasp**.
+
+
+Tests
++++++
+
+``tests/test_link_zmq.py`` checks the PyMoDAQ ⇄ Raspberry link against a fake server,
+without hardware (acquisition, control, error response, timeout)::
+
+    python -m unittest discover -s tests -p "test_link_zmq.py"
+
 
 Installation instructions
 +++++++++++++++++++++++++
@@ -137,10 +188,12 @@ Installation instructions
   dependency (Linux-only) is automatically skipped, so only the PiCamera viewer is
   unavailable there.
 * The Raspberry-side server requires the I2C bus and the ``pigpio`` daemon
-  (see ``src_raspberry/README.md``).
-  
-  
- OnRaspberry Plugins
- ===================
-* PyMoDAQ’s version >= 5
+  (see ``src_raspberry/README.md``, or the Raspberry installation package on the wiki).
+
+
+OnRaspberry Plugins
+===================
+
+* PyMoDAQ’s version >= 5, installed on the Raspberry Pi itself
+* Tested on/with a raspberry pi 4
 

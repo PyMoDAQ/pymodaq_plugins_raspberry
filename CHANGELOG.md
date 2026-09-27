@@ -12,6 +12,19 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.15] - 2026-09-27
+
+### Corrigé
+- `README.rst` : l'affichage sur GitHub était cassé par le titre « OnRaspberry Plugins »,
+  indenté d'un espace (erreur reStructuredText « Unexpected section title »). Le titre et
+  la liste mal indentée juste au-dessus sont corrigés, et le fichier est validé sans
+  aucun avertissement par docutils.
+- `README.rst` : chemin `hardware/Link_PMQ.py` corrigé en `hardware/link_zmq.py`. Nouvelles
+  sections : Documentation (lien vers le wiki DAP), Configuration (clés du TOML, dont
+  `timeout_ms`), Simulation mode, Tests. Options `--port` et `--verbose` de `main.py`.
+  La section « OnRaspberry Plugins » est complétée.
+- `src_raspberry/README.md` : renvoi vers le package d'installation rapide du wiki.
+
 ## [5.5.14] - 2026-09-27
 
 ### Corrigé

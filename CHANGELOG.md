@@ -12,6 +12,14 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.6] - 2026-09-27
+
+### Corrigé
+- `hardware/link_zmq.py` : le bloc `__main__` contenait l'adresse de développement
+  `172.17.50.41` et pilotait une broche. Il devient une vérification de connexion
+  en lecture seule, qui prend l'adresse en argument :
+  `python -m pymodaq_plugins_raspberry.hardware.link_zmq <ip> [port]`.
+
 ## [5.5.5] - 2026-09-27
 
 ### Corrigé

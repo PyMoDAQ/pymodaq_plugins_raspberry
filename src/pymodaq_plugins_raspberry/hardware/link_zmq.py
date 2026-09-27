@@ -238,11 +238,13 @@ class ZMQLink:
             return "ERROR : input type incorrect, dict required"
 
 if __name__ == '__main__':
-    """Main section used during development tests"""
+    """Quick link check from a terminal (read only, nothing is driven):
+    python -m pymodaq_plugins_raspberry.hardware.link_zmq <ip address> [port]"""
+    import sys
 
-    Capteur1 = ZMQLink("172.17.50.41", '5555')
+    if len(sys.argv) < 2:
+        sys.exit("usage: python -m pymodaq_plugins_raspberry.hardware.link_zmq <ip address> [port]")
 
-    print(Capteur1.multi_acquisition(addresses=["0x49"]))
-    print(Capteur1.pilotage("0", pin="18"))
-
-    Capteur1.close()
+    link = ZMQLink(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else '5555')
+    print(f"Raspberry reachable : {link.get_link_status()}")
+    link.close()

@@ -12,6 +12,13 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.11] - 2026-09-27
+
+### Corrigé
+- `src_raspberry/hardware/actuators.py` : `pigpio` devient optionnel. Son absence
+  (PC, Windows) bascule les actionneurs en simulation au lieu de faire échouer le
+  démarrage. `main.py` démarre désormais en simulation sous Windows.
+
 ## [5.4.10] - 2026-09-27
 
 ### Corrigé

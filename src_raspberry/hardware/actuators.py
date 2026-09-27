@@ -5,7 +5,15 @@ from dataclasses import dataclass
 from typing import Optional
 from unittest.mock import MagicMock
 
-import pigpio
+# pigpio n'est installé que sur la Raspberry : son absence (PC de démonstration,
+# Windows) ne doit pas empêcher le serveur de démarrer en mode simulation.
+try:
+    import pigpio
+except ImportError:
+    pigpio = None
+
+## @brief Mode « sortie » d'une broche (valeur de pigpio.OUTPUT)
+GPIO_OUTPUT = pigpio.OUTPUT if pigpio is not None else 1
 #endregion
 
 #region Logger
@@ -125,7 +133,7 @@ class CDigitalActuator(CActuatorDriver):
     """
 
     def setup(self) -> None:
-        self.pi.set_mode(self.cfg.pin, pigpio.OUTPUT)
+        self.pi.set_mode(self.cfg.pin, GPIO_OUTPUT)
         self.pi.write(self.cfg.pin, 0)
         logger.debug("TOR configuré : %s (pin %s)", self.cfg.title, self.cfg.pin)
 
@@ -163,9 +171,9 @@ class CActuatorManager:
         @param actuatorsConfig Liste des dictionnaires de configuration des actionneurs.
         """
         ## @brief Interface de communication avec la librairie pigpio
-        self.piClient = pigpio.pi()
+        self.piClient = pigpio.pi() if pigpio is not None else None
 
-        if not self.piClient.connected:
+        if self.piClient is None or not self.piClient.connected:
             logger.info("pigpio non connecté : passage en mode simulation")
             self.piClient = MagicMock()
             self.piClient.connected = True

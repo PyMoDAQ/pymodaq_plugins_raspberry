@@ -1,5 +1,6 @@
 import numpy as np
 
+from pymodaq_utils.utils import ThreadCommand
 from pymodaq_data.data import DataToExport
 from pymodaq.utils.data import DataFromPlugins
 from pymodaq_gui.parameter import Parameter
@@ -185,9 +186,10 @@ class DAQ_0DViewer_ViewRasp(DAQ_Viewer_base):
 ########################################################################################################################
 
         if isinstance(data_tot, str) and "ERROR" in data_tot:
-            mess = f"Viewer ERROR : {data_tot}"
-            data_tot = [0]
+            mess = f"Viewer {data_tot}"
+            data_tot = [float('nan')] * len(labels_tab)  # one value per channel, never mistaken for a measure
             logger.warning(mess)
+            self.emit_status(ThreadCommand('Update_Status', [mess, 'log']))
         else:
             logger.info(f" Viewer Data : {data_tot}")
 

@@ -12,6 +12,15 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.20] - 2026-09-27
+
+### Corrigé
+- `DAQ_0DViewer_ViewRasp.grab_data` : quand toute l'acquisition échoue (carte
+  injoignable, timeout, réponse `ERROR`), le viewer émettait une seule valeur `0`,
+  quel que soit le nombre de voies affichées. Il émet désormais une valeur `nan`
+  par voie, et le message d'erreur s'affiche en statut dans PyMoDAQ
+  (`Update_Status`), en plus du journal.
+
 ## [5.4.19] - 2026-09-27
 
 ### Corrigé

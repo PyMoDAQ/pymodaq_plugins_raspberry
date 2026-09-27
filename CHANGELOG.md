@@ -12,6 +12,14 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.13] - 2026-09-27
+
+### Corrigé
+- `DAQ_0DViewer_ViewRasp.grab_data` : la ligne `Viewer Data : [...]` était écrite
+  en INFO à chaque acquisition, soit plus de 4 500 lignes dans le journal PyMoDAQ
+  pour une courte session. Elle passe en DEBUG. Les erreurs restent en WARNING,
+  avec un statut visible dans PyMoDAQ.
+
 ## [5.5.12] - 2026-09-27
 
 ### Corrigé

@@ -202,7 +202,7 @@ class DAQ_0DViewer_ViewRasp(DAQ_Viewer_base):
             logger.warning(mess)
             self.emit_status(ThreadCommand('Update_Status', [mess, 'log']))
         else:
-            logger.info(f" Viewer Data : {data_tot}")
+            logger.debug(f"Viewer Data : {data_tot}")
 
         if isinstance(data_tot, list):
             if len(labels_tab) == 1:

@@ -5,6 +5,8 @@ import uuid
 from pymodaq.utils.logger import set_logger, get_module_name
 logger = set_logger(get_module_name(__file__))
 
+DEFAULT_TIMEOUT_MS = 2000  # maximum wait for a raspberry's response, in milliseconds
+
 class ZMQLink:
     """
     Set up the connection between the Pymodaq Dashboard and the raspberry's script
@@ -16,19 +18,24 @@ class ZMQLink:
     __context : zmq.Context
     __socket : zmq.Socket
     __id_socket : str
+    __address : str
+    __timeout_ms : int
 
-    def __init__(self, ip_address : str, port : str):
+    def __init__(self, ip_address : str, port : str, timeout_ms : int = DEFAULT_TIMEOUT_MS):
         """
         Init the object and start the connection
         --------------------
         :param ip_address: The raspberry's ip address
         :param port: The raspberry's communication port (5555 by default)
+        :param timeout_ms: Maximum wait for a response, in milliseconds (2000 by default)
         :return: void - start the ZMQ connection
         """
         self.__isLinked = False
         self.__id_socket = ""
         self.__context = None
         self.__socket = None
+        self.__address = ""
+        self.__timeout_ms = int(timeout_ms)
         self.open(ip_address, port)
         return
 
@@ -44,12 +51,8 @@ class ZMQLink:
 
         self.close()  # releases the previous socket and context when reopening
         self.__context = zmq.Context()
-        self.__socket = self.__context.socket(zmq.DEALER)
-
-        self.__id_socket = str(uuid.uuid4())
-        self.__socket.setsockopt_string(zmq.IDENTITY, self.__id_socket)
-
-        self.__socket.connect(f"tcp://{ip_address}:{port}")
+        self.__address = f"tcp://{ip_address}:{port}"
+        self.__new_socket()
         self.__isLinked = True
 
         logger.info(f"ZMQ LINK -> CONNECTED |"
@@ -73,26 +76,70 @@ class ZMQLink:
         self.__isLinked = False
         return
 
+    def __new_socket(self):
+        """
+        Create the DEALER socket, with bounded waits, and connect it to the raspberry
+        --------------------
+        :return: void - replace the current socket
+        """
+        if self.__socket is not None:
+            self.__socket.close(linger=0)
+
+        self.__socket = self.__context.socket(zmq.DEALER)
+        self.__id_socket = str(uuid.uuid4())
+        self.__socket.setsockopt_string(zmq.IDENTITY, self.__id_socket)
+        self.__socket.setsockopt(zmq.RCVTIMEO, self.__timeout_ms)
+        self.__socket.setsockopt(zmq.SNDTIMEO, self.__timeout_ms)
+        self.__socket.setsockopt(zmq.LINGER, 0)
+        self.__socket.connect(self.__address)
+
     def __write(self, request : dict):
         """
         Send a JSON request to the raspberry's script
         --------------------
         :param request: A dictionary formatted for a request
-        :return: The response from the raspberry's script
+        :return: The response from the raspberry's script,
+                 or {"state": "ERROR", "value": <message>} if the raspberry does not answer
         """
-        self.__socket.send(json.dumps(request).encode('utf-8'))
+        if self.__socket is None:
+            return {"state": "ERROR", "value": "link closed"}
+        try:
+            self.__socket.send(json.dumps(request).encode('utf-8'))
+        except zmq.Again:
+            return self.__timeout_error()
         return self.__read()
 
     def __read(self):
         """
         Receive a JSON response from the raspberry's script
         --------------------
-        :return: The response from a request, sent by the raspberry's script
+        :return: The response from a request, sent by the raspberry's script,
+                 or {"state": "ERROR", "value": <message>} on timeout or invalid response
         """
-        inp_mq = self.__socket.recv()
+        try:
+            inp_mq = self.__socket.recv()
+        except zmq.Again:
+            return self.__timeout_error()
+
         if isinstance(inp_mq, bytes):
             inp_mq = inp_mq.decode('utf-8')
-        return json.loads(inp_mq)
+        try:
+            return json.loads(inp_mq)
+        except ValueError:
+            return {"state": "ERROR", "value": f"invalid response from {self.__address} : {inp_mq}"}
+
+    def __timeout_error(self) -> dict:
+        """
+        Handle a raspberry that does not answer in time
+        --------------------
+        :return: A structured error response
+        """
+        message = f"TIMEOUT - no response from {self.__address} within {self.__timeout_ms} ms"
+        logger.warning(message)
+        # A late response would be read as the answer to the next request:
+        # a new socket (new identity) discards it
+        self.__new_socket()
+        return {"state": "ERROR", "value": message}
 
     def get_link_status(self) -> bool:
         """
@@ -140,6 +187,8 @@ class ZMQLink:
 
         if not isinstance(inp_mq, dict):
             return "ERROR : input type incorrect, dict required"
+        if inp_mq.get("state") != "ACK":
+            return f"ERROR : {inp_mq.get('value')}"
 
         for i, elem in enumerate(inp_mq["value"]):
             if type(elem) != int and type(elem) != float:

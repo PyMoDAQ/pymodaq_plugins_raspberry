@@ -4,7 +4,7 @@ from pymodaq.control_modules.move_utility_classes import (DAQ_Move_base, comon_p
 
 from pymodaq_gui.parameter import Parameter
 
-from ..hardware.link_zmq import ZMQLink
+from ..hardware.link_zmq import ZMQLink, DEFAULT_TIMEOUT_MS
 from ..hardware.config_components import get_actuators_hardware, get_access_variables
 
 from pymodaq_plugins_raspberry import config
@@ -122,7 +122,8 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
             False if initialization failed otherwise True
         """
         if self.is_master:
-            self.controller = ZMQLink(config("Raspberry", "address_Rasp"), config("Raspberry", "port"))
+            self.controller = ZMQLink(config("Raspberry", "address_Rasp"), config("Raspberry", "port"),
+                                      config.get(("Raspberry", "timeout_ms"), DEFAULT_TIMEOUT_MS))
             initialized = self.controller.get_link_status()
         else:
             self.controller = controller

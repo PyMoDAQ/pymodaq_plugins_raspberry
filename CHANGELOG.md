@@ -12,6 +12,21 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.17] - 2026-09-27
+
+### Corrigé
+- `hardware/link_zmq.py` : le plugin gelait (interface PyMoDAQ figée) quand la
+  Raspberry ne répondait pas, car `recv()` bloquait sans limite (P0.1). Le socket
+  DEALER reçoit désormais `RCVTIMEO`/`SNDTIMEO` (2000 ms par défaut) et `LINGER=0`.
+  Un timeout renvoie `{"state": "ERROR", "value": "TIMEOUT - ..."}` au lieu de
+  bloquer, et le socket est recréé : une réponse tardive n'est plus prise pour la
+  réponse à la requête suivante.
+- `multi_acquisition()` : une réponse `ERROR` de la carte (ou un timeout) est
+  renvoyée sous forme de message `"ERROR : ..."`. Elle n'est plus parcourue
+  caractère par caractère comme une liste de valeurs.
+- `config_template.toml` : nouvelle clé `timeout_ms` dans `[Raspberry]`,
+  transmise à `ZMQLink` par `DAQ_0DViewer_ViewRasp` et `DAQ_Move_MoveRasp`.
+
 ## [5.4.16] - 2026-09-27
 
 ### Corrigé

@@ -77,9 +77,10 @@ class JsonRequestHandler(IRequestHandler):
         """!
         @brief Gère la requête de scan des périphériques.
         @param _request Données de la requête (inutilisé).
-        @return Dictionnaire listant les périphériques.
+        @return Dict de réponse dont la valeur liste les périphériques
+                ({'actuator': [...], 'detector': [...]}).
         """
-        return self.backend.scan()
+        return self._Ack(self.backend.scan())
 
     def _HandleAcquisition(self, requestData: dict) -> dict:
         """!

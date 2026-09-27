@@ -12,6 +12,14 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.15] - 2026-09-27
+
+### Corrigé
+- `src_raspberry/handlers/json_handler.py` : la réponse à `scan` passe par `_Ack`,
+  comme toutes les autres : `{"state": "ACK", "value": {"actuator": [...], "detector": [...]}}`.
+  Toutes les requêtes ont désormais une seule forme de réponse (P1.2). Aucun code
+  du plugin ne consommait `scan` sous l'ancienne forme.
+
 ## [5.4.14] - 2026-09-27
 
 ### Corrigé

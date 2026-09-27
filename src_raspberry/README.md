@@ -89,6 +89,8 @@ python main.py
 Le serveur écoute des trames JSON sur un socket ZeroMQ (ROUTER) port `5555`.
 
 ### Scan du matériel
+
+Réponse : `{"state": "ACK", "value": {"actuator": [...], "detector": [...]}}`.
 ```json
 {"type": "scan"}
 ```

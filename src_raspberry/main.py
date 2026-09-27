@@ -37,7 +37,10 @@ def main() -> None:
     """
     parser = argparse.ArgumentParser(description="Serveur d'acquisition et de pilotage Raspberry pour PyMoDAQ")
     parser.add_argument("--port", type=int, default=5555, help="port d'écoute TCP (5555 par défaut)")
+    parser.add_argument("--verbose", action="store_true", help="journalise chaque requête et sa réponse")
     args = parser.parse_args()
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
 
     logger.info("Initialisation de la communication composants...")
     hardwareBackend = HardwareBackend(config)

@@ -78,6 +78,7 @@ vers `config.py`.
 ```bash
 python main.py              # port 5555
 python main.py --port 5556  # autre port (à reporter dans le TOML côté PC)
+python main.py --verbose    # affiche aussi chaque requête reçue et sa réponse
 ```
 
 > **Mode simulation** : si le bus I2C ou le démon pigpio sont inaccessibles

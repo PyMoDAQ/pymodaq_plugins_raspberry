@@ -122,12 +122,13 @@ class ZmqServer(ITransport):
                 logger.error("Paquet non UTF-8 reçu — ignoré.")
                 continue
 
-            logger.info("← (%s) %s", client_id.hex()[:8], command_str)
+            # DEBUG : une ligne par requête inonderait la console (python main.py --verbose pour les voir)
+            logger.debug("← (%s) %s", client_id.hex()[:8], command_str)
 
             # Délégation à la couche de gestion des requêtes
             response_str = self.handler.handle(command_str)
 
-            logger.info("→ %s", response_str)
+            logger.debug("→ %s", response_str)
 
             reply_frames = [client_id]
             if use_delimiter:

@@ -12,6 +12,18 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.12] - 2026-09-27
+
+### Corrigé
+- `src_raspberry/transport/zmq_server.py` : chaque requête et chaque réponse
+  étaient journalisées en INFO. Avec une acquisition continue sans temps
+  d'attente, cela faisait des centaines de lignes par seconde : la console
+  devenait le goulot d'étranglement et ne gardait que quelques secondes
+  d'historique. Ces lignes passent en DEBUG. Les connexions et déconnexions
+  restent en INFO.
+- `src_raspberry/main.py` : option `--verbose` pour réafficher chaque requête et sa
+  réponse, par exemple pour montrer le protocole en direct.
+
 ## [5.5.11] - 2026-09-27
 
 ### Corrigé

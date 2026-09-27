@@ -12,6 +12,15 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.13] - 2026-09-27
+
+### Corrigé
+- `src_raspberry/transport/zmq_server.py` : Ctrl+C n'arrêtait pas le serveur, bloqué
+  dans un `recv_multipart()` sans fin. La boucle attend désormais par `poll()` de
+  500 ms et rend la main à Python entre deux attentes.
+- Le thread de surveillance des connexions se termine sans trace d'erreur quand
+  `stop()` ferme son socket (`ZMQError: not a socket`).
+
 ## [5.4.12] - 2026-09-27
 
 ### Corrigé

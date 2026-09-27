@@ -42,7 +42,8 @@ def monitor_connections(monitor_socket) -> None:
                 break
             except Exception as exc:
                 logger.error("Erreur moniteur : %s", exc)
-    except zmq.error.ContextTerminated:
+    except zmq.error.ZMQError:
+        # Contexte terminé ou socket fermé par stop() : fin normale de la surveillance
         pass
     logger.info("Fin de la surveillance des connexions.")
 #endregion
@@ -97,6 +98,10 @@ class ZmqServer(ITransport):
         @brief Boucle principale de réception et de traitement des messages.
         """
         while True:
+            # Attente bornée : un recv bloquant ne rend jamais la main à Python,
+            # et Ctrl+C resterait sans effet (notamment sous Windows).
+            if not self.zmq_socket.poll(timeout=500):
+                continue
             frames = self.zmq_socket.recv_multipart()
 
             # Détection du format (REQ = 3 frames avec délimiteur vide, DEALER = 2 frames)

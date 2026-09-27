@@ -12,6 +12,19 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.3] - 2026-09-27
+
+### Ajouté
+- `tests/test_link_zmq.py` : quatre tests de la chaîne sans matériel. Un faux
+  serveur ROUTER tourne dans un thread, et un vrai `ZMQLink` y est branché. Les
+  tests couvrent une acquisition, un pilotage, une réponse d'erreur (lecture ratée
+  en `nan`, pilotage refusé) et un timeout (carte muette : erreur en moins de 2 s,
+  sans gel). Écrits avec `unittest`, ils ne demandent aucun paquet supplémentaire :
+  `python -m unittest discover -s tests -p "test_link_zmq.py"`. Ils sont aussi
+  exécutés par pytest en CI. Un appel bloqué fait échouer le test au bout de 5 s
+  au lieu de figer la suite. Vérifié : réintroduire la sentinelle `-1` ou retirer
+  `RCVTIMEO` fait échouer les tests.
+
 ## [5.5.2] - 2026-09-27
 
 ### Ajouté

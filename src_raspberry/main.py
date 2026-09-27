@@ -1,4 +1,5 @@
 #region Imports
+import argparse
 import logging
 import os
 import sys
@@ -34,6 +35,10 @@ def main() -> None:
     Le main est le seul maillon non interchangeable : il instancie chaque couche
     et les câble entre elles.
     """
+    parser = argparse.ArgumentParser(description="Serveur d'acquisition et de pilotage Raspberry pour PyMoDAQ")
+    parser.add_argument("--port", type=int, default=5555, help="port d'écoute TCP (5555 par défaut)")
+    args = parser.parse_args()
+
     logger.info("Initialisation de la communication composants...")
     hardwareBackend = HardwareBackend(config)
 
@@ -41,7 +46,7 @@ def main() -> None:
     requestHandler = JsonRequestHandler(hardwareBackend)
 
     logger.info("Initialisation du serveur réseau...")
-    transport = ZmqServer(requestHandler, listenPort=5555)
+    transport = ZmqServer(requestHandler, listenPort=args.port)
 
     try:
         # Le serveur bloque le thread principal en écoutant

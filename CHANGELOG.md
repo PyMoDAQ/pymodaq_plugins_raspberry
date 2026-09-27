@@ -12,6 +12,12 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.10] - 2026-09-27
+
+### Corrigé
+- `src_raspberry/main.py` : le port d'écoute, jusqu'ici codé en dur à 5555, se
+  choisit avec `python main.py --port <port>` (5555 par défaut). README mis à jour.
+
 ## [5.5.9] - 2026-09-27
 
 ### Corrigé

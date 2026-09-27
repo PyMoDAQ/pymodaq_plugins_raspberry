@@ -1,4 +1,3 @@
-from pint.facets.numpy import quantity
 from pymodaq.control_modules.move_utility_classes import (DAQ_Move_base, comon_parameters_fun, main,
                                                           DataActuator, DataActuatorType)
 
@@ -57,8 +56,7 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
     def ini_attributes(self):
         self.controller: ZMQLink = None
 
-        for elem in self.actuators:
-            self.update_move_settings(self.axis_name)
+        self.update_move_settings(self.axis_name)
 
         self.settings['bounds', 'is_bounds'] = True
 

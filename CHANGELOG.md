@@ -12,6 +12,15 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.8] - 2026-09-27
+
+### Corrigé
+- `DAQ_Move_MoveRasp` : suppression de l'import inutilisé
+  `from pint.facets.numpy import quantity`, qui visait un module interne de pint,
+  susceptible de disparaître d'une version à l'autre. `ini_attributes` appelait
+  `update_move_settings` une fois par actionneur avec le même axe : un seul appel
+  suffit.
+
 ## [5.5.7] - 2026-09-27
 
 ### Corrigé

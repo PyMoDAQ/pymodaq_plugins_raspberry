@@ -53,12 +53,19 @@ class ZMQLink:
         self.__context = zmq.Context()
         self.__address = f"tcp://{ip_address}:{port}"
         self.__new_socket()
-        self.__isLinked = True
 
-        logger.info(f"ZMQ LINK -> CONNECTED |"
-                    f" IP ROUTER : {ip_address} |"
-                    f" PORT ROUTER : {port} |"
-                    f" ID DEALER : {self.__id_socket}")
+        # connect() is asynchronous and never fails, even towards a wrong address:
+        # only an answered 'scan' request proves that the raspberry's script is reachable
+        response = self.__write({"type": "scan"})
+        self.__isLinked = isinstance(response, dict) and response.get("state") == "ACK"
+
+        if self.__isLinked:
+            logger.info(f"ZMQ LINK -> CONNECTED |"
+                        f" IP ROUTER : {ip_address} |"
+                        f" PORT ROUTER : {port} |"
+                        f" ID DEALER : {self.__id_socket}")
+        else:
+            logger.warning(f"ZMQ LINK -> NOT CONNECTED | {self.__address} | {response}")
         return
 
     def close(self):
@@ -143,7 +150,7 @@ class ZMQLink:
 
     def get_link_status(self) -> bool:
         """
-        Get the status of the socket (True -> open, False -> closed)
+        Get the status of the link (True -> the raspberry answered, False -> no answer or closed)
         --------------------
         :return: The status of the connection
         """

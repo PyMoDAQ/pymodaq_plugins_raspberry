@@ -115,9 +115,14 @@ class DAQ_0DViewer_ViewRasp(DAQ_Viewer_base):
             False if initialization failed otherwise True
         """
         if self.is_master:
-            self.controller = ZMQLink(config("Raspberry", "address_Rasp"), config("Raspberry", "port"),
-                                      config.get(("Raspberry", "timeout_ms"), DEFAULT_TIMEOUT_MS))
-            initialized = self.controller.get_link_status()
+            address, port = config("Raspberry", "address_Rasp"), config("Raspberry", "port")
+            timeout_ms = config.get(("Raspberry", "timeout_ms"), DEFAULT_TIMEOUT_MS)
+            self.controller = ZMQLink(address, port, timeout_ms)
+            if not self.controller.get_link_status():
+                self.controller.close()
+                return (f"Raspberry unreachable at tcp://{address}:{port} (no answer within {timeout_ms} ms):"
+                        f" check the address and that the raspberry's script is running"), False
+            initialized = True
         else:
             self.controller = controller
             initialized = True
@@ -126,7 +131,7 @@ class DAQ_0DViewer_ViewRasp(DAQ_Viewer_base):
 
     def close(self):
         """Terminate the communication protocol"""
-        if self.is_master:
+        if self.is_master and self.controller is not None:
             self.controller.close()
         pass
 

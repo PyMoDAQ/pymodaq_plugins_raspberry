@@ -12,6 +12,20 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.18] - 2026-09-27
+
+### Corrigé
+- `hardware/link_zmq.py` : `get_link_status()` renvoyait toujours vrai, car
+  `connect()` est asynchrone en ZeroMQ et n'échoue jamais (P0.2). `open()` envoie
+  désormais une requête `scan` : le lien n'est considéré comme établi que si la
+  Raspberry répond `ACK` avant le timeout.
+- `DAQ_0DViewer_ViewRasp.ini_detector`, `DAQ_Move_MoveRasp.ini_stage` : si la
+  carte ne répond pas, l'initialisation échoue en 2 s avec un message citant
+  l'adresse et le port tentés, au lieu d'afficher « Initialized » puis de geler à
+  la première acquisition.
+- `close()` des deux plugins : protégé quand l'initialisation a échoué
+  (`controller` à `None`).
+
 ## [5.4.17] - 2026-09-27
 
 ### Corrigé

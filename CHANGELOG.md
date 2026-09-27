@@ -12,6 +12,14 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.2] - 2026-09-27
+
+### Ajouté
+- `src_raspberry/README.md` : section « Démonstration sans Raspberry » en cinq
+  étapes (lancer le serveur en simulation, installer la configuration de démo,
+  initialiser les plugins, piloter la résistance et le ventilateur, montrer la
+  réaction à un serveur arrêté).
+
 ## [5.5.1] - 2026-09-27
 
 ### Ajouté

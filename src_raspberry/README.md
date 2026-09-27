@@ -84,6 +84,14 @@ python main.py
 > (bus I2C factice, actionneurs simulés qui mémorisent leur consigne) pour tester
 > la communication réseau sans la Raspberry Pi.
 
+### Démonstration sans Raspberry (Windows, macOS, Linux)
+
+1. Sur le PC, avec PyMoDAQ installé : `pip install pyzmq`, puis `python src_raspberry/main.py` (log `Mode simulation activé`).
+2. Copier `src/pymodaq_plugins_raspberry/resources/config_demo.toml` vers `~/.pymodaq/config_raspberry.toml`.
+3. Dans le Dashboard, ajouter `ViewRasp` et `MoveRasp`, cocher les composants du viewer, puis initialiser.
+4. Régler `Resistance` à 255 : les températures montent ; régler `Ventilateur` à 255 : elles redescendent.
+5. Arrêter le serveur avec Ctrl+C ; serveur arrêté, les voies passent en `nan` avec un message d'erreur visible.
+
 ## 📡 Protocole de communication (JSON)
 
 Le serveur écoute des trames JSON sur un socket ZeroMQ (ROUTER) port `5555`.

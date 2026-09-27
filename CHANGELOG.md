@@ -12,6 +12,15 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.16] - 2026-09-27
+
+### Corrigé
+- `hardware/link_zmq.py` : `close()` ferme le socket sans attente (`linger=0`) et
+  termine le contexte ZeroMQ ; `open()` libère le socket et le contexte précédents
+  avant d'en créer de nouveaux. Ouvrir et fermer plusieurs fois le lien ne fuit
+  plus. `close()` peut être appelé plusieurs fois sans erreur.
+- `hardware/link_zmq.py` : `print()` remplacé par le logger PyMoDAQ.
+
 ## [5.4.15] - 2026-09-27
 
 ### Corrigé

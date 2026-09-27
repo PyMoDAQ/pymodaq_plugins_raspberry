@@ -27,6 +27,8 @@ class ZMQLink:
         """
         self.__isLinked = False
         self.__id_socket = ""
+        self.__context = None
+        self.__socket = None
         self.open(ip_address, port)
         return
 
@@ -40,6 +42,7 @@ class ZMQLink:
         """
         assert ip_address is not None, "ERROR - ip address not set"
 
+        self.close()  # releases the previous socket and context when reopening
         self.__context = zmq.Context()
         self.__socket = self.__context.socket(zmq.DEALER)
 
@@ -49,10 +52,10 @@ class ZMQLink:
         self.__socket.connect(f"tcp://{ip_address}:{port}")
         self.__isLinked = True
 
-        print(f"ZMQ LINK -> CONNECTED |"
-              f" IP ROUTER : {ip_address} |"
-              f" PORT ROUTER : {port} |"
-              f" ID DEALER : {self.__id_socket}")
+        logger.info(f"ZMQ LINK -> CONNECTED |"
+                    f" IP ROUTER : {ip_address} |"
+                    f" PORT ROUTER : {port} |"
+                    f" ID DEALER : {self.__id_socket}")
         return
 
     def close(self):
@@ -61,7 +64,12 @@ class ZMQLink:
         --------------------
         :return: Close the ZMQ connection
         """
-        self.__socket.close()
+        if self.__socket is not None:
+            self.__socket.close(linger=0)
+            self.__socket = None
+        if self.__context is not None:
+            self.__context.term()
+            self.__context = None
         self.__isLinked = False
         return
 

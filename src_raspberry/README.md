@@ -87,13 +87,14 @@ python main.py
 ## 📡 Protocole de communication (JSON)
 
 Le serveur écoute des trames JSON sur un socket ZeroMQ (ROUTER) port `5555`.
+Quatre types de requêtes : `scan`, `AQ`, `AQ-MULTI` et `PI`. Toutes les réponses
+ont la même forme : `{"state": "ACK" | "ERROR", "value": <valeur ou message>}`.
 
 ### Scan du matériel
-
-Réponse : `{"state": "ACK", "value": {"actuator": [...], "detector": [...]}}`.
 ```json
 {"type": "scan"}
 ```
+Réponse : `{"state": "ACK", "value": {"actuator": [...], "detector": [...]}}`.
 
 ### Acquisition (`AQ`)
 ```json
@@ -105,8 +106,10 @@ Réponse : `{"state": "ACK", "value": {"actuator": [...], "detector": [...]}}`.
 ```json
 {"type": "PI", "register": "pin", "pin": 18, "value": 128}
 ```
+Les actionneurs sont pilotés par leur broche GPIO. Un pilotage par adresse I2C
+(`"register": "add"`) est refusé : aucun pilote d'actionneur I2C n'existe.
 
-### Modes multiples (`AQ-MULTI`, `PI-MULTI`)
+### Acquisition multiple (`AQ-MULTI`)
 ```json
 {
   "type": "AQ-MULTI",
@@ -116,3 +119,7 @@ Réponse : `{"state": "ACK", "value": {"actuator": [...], "detector": [...]}}`.
   ]
 }
 ```
+Les valeurs sont renvoyées dans l'ordre demandé. Une lecture ratée est remplacée
+à sa place par sa propre réponse d'erreur, par exemple :
+`{"state": "ACK", "value": [45.2, {"state": "ERROR", "value": "Capteur introuvable"}]}`.
+Le plugin la journalise et l'affiche en `nan`.

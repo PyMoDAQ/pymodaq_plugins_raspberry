@@ -12,6 +12,18 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.24] - 2026-09-27
+
+### Supprimé
+- `src_raspberry/handlers/json_handler.py` : suppression de `PI-MULTI` (P1.4). Aucun
+  appelant côté plugin, pas d'exemple documenté, et le pilotage d'un seul
+  actionneur par déplacement PyMoDAQ n'en a pas l'usage. Une requête `PI-MULTI`
+  reçoit désormais « Type de requête inconnu ».
+- `src_raspberry/README.md` : section protocole mise à jour. Elle décrit quatre types
+  de requêtes (`scan`, `AQ`, `AQ-MULTI`, `PI`) et une forme de réponse unique, le
+  pilotage par broche uniquement, et la place d'une erreur dans une réponse
+  `AQ-MULTI`.
+
 ## [5.4.23] - 2026-09-27
 
 ### Corrigé

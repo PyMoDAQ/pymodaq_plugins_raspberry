@@ -35,7 +35,6 @@ class JsonRequestHandler(IRequestHandler):
             "AQ":       self._HandleAcquisition,
             "AQ-MULTI": self._HandleMultiAcquisition,
             "PI":       self._HandlePiloting,
-            "PI-MULTI": self._HandleMultiPiloting,
         }
 
     def handle(self, request: str) -> str:
@@ -145,11 +144,6 @@ class JsonRequestHandler(IRequestHandler):
             return self._Ack(self.backend.read_pin(pinTarget))
         except Exception as exc:
             return self._Error(str(exc))
-
-    def _HandleMultiPiloting(self, requestData: dict) -> dict:
-        """! @brief Gère la requête PI-MULTI. """
-        componentsList = requestData.get("components", [])
-        return self._Ack([self._HandlePiloting(comp) for comp in componentsList])
 
     @staticmethod
     def _Ack(valueData) -> dict:

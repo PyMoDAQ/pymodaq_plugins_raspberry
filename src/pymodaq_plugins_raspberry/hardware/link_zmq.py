@@ -209,39 +209,23 @@ class ZMQLink:
 
         return inp_mq["value"]
 
-    def pilotage(self, value : str | int, address : str | int = None, pin : str | int = None) -> float | str:
+    def pilotage(self, value : str | int, pin : str | int) -> float | str:
         """
         Send a JSON control request to the raspberry's script
         --------------------
+        Actuators are driven by their GPIO pin: the raspberry's script has no I2C actuator driver
         :param value: The value wanted for the component
-        :param address: The address of the component
         :param pin: The pin of the component
         :return: The value read by the component after control
         """
-        assert address is not None or pin is not None, "ERROR: hardware should have an address or a pin"
-        assert not (address is not None and pin is not None), \
-            "ERROR: only one of address or pin should be given, not both"
-
-        inp_mq = None
-
-        if address is not None:
-            inp_mq = self.__write(
-                {
-                    "type": "PI",
-                    "register": "add",
-                    "add": address,
-                    "value" : value
-                }
-            )
-        elif pin is not None:
-            inp_mq = self.__write(
-                {
-                    "type": "PI",
-                    "register": "pin",
-                    "pin": pin,
-                    "value" : value
-                }
-            )
+        inp_mq = self.__write(
+            {
+                "type": "PI",
+                "register": "pin",
+                "pin": pin,
+                "value" : value
+            }
+        )
 
         if isinstance(inp_mq, dict):
             if inp_mq["state"] == "ACK":

@@ -126,7 +126,12 @@ class JsonRequestHandler(IRequestHandler):
         return self._Ack(valuesList)
 
     def _HandlePiloting(self, requestData: dict) -> dict:
-        """! @brief Gère la requête de pilotage. """
+        """! @brief Gère la requête de pilotage (par broche uniquement). """
+        if requestData.get("register") == "add":
+            # Les actionneurs sont indexés par broche GPIO (CActuatorManager) :
+            # aucun pilote d'actionneur I2C n'existe côté carte.
+            return self._Error("Pilotage par adresse I2C non supporté : les actionneurs sont pilotés par broche")
+
         pinTarget = self._ParseInt(requestData.get("pin"), "pin")
         powerValue = self._ParseInt(requestData.get("value"), "value")
 

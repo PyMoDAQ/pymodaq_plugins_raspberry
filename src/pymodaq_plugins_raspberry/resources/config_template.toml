@@ -15,7 +15,7 @@ min = "0"
 max = "100"
 #
 # Extra variables, they are used to identify the component
-# Here, for a I2C network, we use an address and a pin variable to identify and use the component "MyActuator"
+# An actuator is driven by its GPIO pin: keep address = "None" (the Raspberry has no I2C actuator driver)
 address = "None"
 pin = "00"
 #

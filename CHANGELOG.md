@@ -12,6 +12,24 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.23] - 2026-09-27
+
+### Corrigé
+- Pilotage par adresse I2C (P1.1) : le plugin savait construire une requête
+  `PI` par adresse, mais la carte l'ignorait et répondait « Format invalide pour
+  'pin' ». La carte n'a en effet aucun pilote d'actionneur I2C :
+  `CActuatorManager` indexe les actionneurs par broche GPIO, et le champ `address`
+  de `CActuatorConfig` n'est jamais utilisé.
+  - `src_raspberry/handlers/json_handler.py` : un `PI` avec `register: "add"`
+    reçoit une erreur explicite (« Pilotage par adresse I2C non supporté »).
+  - `hardware/link_zmq.py` : `pilotage(value, pin)` ne pilote plus que par broche,
+    la branche adresse est retirée.
+  - `DAQ_Move_MoveRasp.move_value` : pilote l'actionneur par sa broche. Un
+    actionneur sans broche produit une erreur visible au lieu d'une requête vouée
+    à l'échec. L'attribut devenu inutile `name_access_variables` est retiré.
+  - `config_template.toml` : le commentaire indique qu'un actionneur est piloté
+    par sa broche (`address = "None"`).
+
 ## [5.4.22] - 2026-09-27
 
 ### Corrigé

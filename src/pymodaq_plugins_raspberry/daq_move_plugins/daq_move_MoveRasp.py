@@ -6,7 +6,7 @@ from pymodaq_utils.utils import ThreadCommand
 from pymodaq_gui.parameter import Parameter
 
 from ..hardware.link_zmq import ZMQLink, DEFAULT_TIMEOUT_MS
-from ..hardware.config_components import get_actuators_hardware, get_access_variables
+from ..hardware.config_components import get_actuators_hardware
 
 from pymodaq_plugins_raspberry import config
 
@@ -47,7 +47,6 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
     _epsilon = [0.1 for actuator in actuators]
     data_actuator_type = DataActuatorType.DataActuator
     current_component = None
-    name_access_variables = get_access_variables(config)
     ####################################################################################################################
 
     # SETUP SPECIFIC CONFIG FOR PRESET
@@ -185,20 +184,17 @@ class DAQ_Move_MoveRasp(DAQ_Move_base):
         # value = (value * 255) / 10000 # Formula for converting the PWM duty cycle percentage to a raw value in PigPio
         if self.current_component is not None and (isinstance(value, float) or isinstance(value, int)):
 
-            for elem in self.name_access_variables:
-                try:
-                    if self.current_component[elem] != 'None':
-                        access_variables = self.current_component[elem]
+            # Actuators are driven by their GPIO pin: the raspberry has no I2C actuator driver
+            access_variables = self.current_component.get('pin', 'None')
 
                                                 # SPECIFIC LINES #
 ########################################################################################################################
-                        if elem == "address":
-                            output = self.controller.pilotage(address=access_variables, value=value)
-                        else:
-                            output = self.controller.pilotage(pin=access_variables, value=value)
+            if access_variables != 'None':
+                output = self.controller.pilotage(value=value, pin=access_variables)
+            else:
+                output = (f"ERROR : actuator '{self.current_component['title']}' has no pin,"
+                          f" piloting by I2C address is not supported by the raspberry")
 ########################################################################################################################
-                except Exception as e:
-                    logger.info(f"ERROR - NO ELEMENTS WITH NAME : {str(e)}")
 
             if not isinstance(output, str):
                 self.output_value = output

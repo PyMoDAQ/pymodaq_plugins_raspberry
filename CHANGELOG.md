@@ -12,6 +12,14 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.4.14] - 2026-09-27
+
+### Corrigé
+- `src_raspberry/hardware/backend.py`, `actuators.py` : la bascule en simulation est
+  journalisée en WARNING avec sa cause (`smbus2` absent, bus I2C introuvable, pigpio
+  non installé ou démon injoignable). Sur une vraie Raspberry, une dépendance
+  manquante ne passe plus inaperçue derrière des valeurs simulées.
+
 ## [5.4.13] - 2026-09-27
 
 ### Corrigé

@@ -211,7 +211,8 @@ class CActuatorManager:
         self.piClient = pigpio.pi() if pigpio is not None else None
 
         if self.piClient is None or not self.piClient.connected:
-            logger.info("pigpio non connecté : passage en mode simulation")
+            reason = "pigpio non installé" if pigpio is None else "démon pigpiod injoignable"
+            logger.warning("%s : actionneurs en mode simulation.", reason)
             self.piClient = CSimulatedPi()
 
         ## @brief Dictionnaire des pilotes d'actionneurs indexé par PIN

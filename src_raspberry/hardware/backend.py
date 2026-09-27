@@ -37,11 +37,13 @@ class HardwareBackend(IHardwareBackend):
             # l'import échoue et le serveur doit tout de même démarrer en simulation.
             from smbus2 import SMBus
             i2cBus = SMBus(configModule.I2C_BUS_ID)
-        except (ImportError, PermissionError, FileNotFoundError, OSError):
+        except (ImportError, PermissionError, FileNotFoundError, OSError) as exc:
             from unittest.mock import MagicMock
             i2cBus = MagicMock()
             isSimulationEnv = True
-            logger.info("Mode simulation activé pour l'I2C.")
+            # WARNING : sur une vraie Raspberry, cela signale une dépendance ou un
+            # bus manquant, et les valeurs servies seront simulées.
+            logger.warning("Mode simulation activé pour l'I2C (%s).", exc)
 
         ## @brief Module de configuration du banc
         self.config = configModule

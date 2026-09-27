@@ -12,6 +12,17 @@ et ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/) :
 
 La version courante est également disponible dans [`version.json`](version.json).
 
+## [5.5.9] - 2026-09-27
+
+### Corrigé
+- `DAQ_0DViewer_ViewRasp.grab_data` : les listes d'adresses et de broches étaient
+  prises par position (`access_variables[0]`, `[1]`) et suivaient donc l'ordre
+  des clés du TOML. Si `pin` était écrit avant `address`, les broches partaient
+  comme des adresses et toutes les voies valaient `nan`. Une clé d'accès
+  supplémentaire décalait aussi les libellés. Les adresses et les broches sont
+  désormais lues par leur nom, dans l'ordre de réponse de la carte (adresses puis
+  broches).
+
 ## [5.5.8] - 2026-09-27
 
 ### Corrigé

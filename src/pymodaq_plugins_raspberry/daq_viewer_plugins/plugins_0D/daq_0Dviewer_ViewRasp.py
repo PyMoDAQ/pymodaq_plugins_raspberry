@@ -169,14 +169,16 @@ class DAQ_0DViewer_ViewRasp(DAQ_Viewer_base):
         kwargs: dict
             others optionals arguments
         """
-        access_variables = []
+        # Explicit order, whatever the order of the keys in the TOML file:
+        # the raspberry answers all the addresses first, then all the pins
+        addresses = []
+        pins = []
         labels_tab = []
 
-        for i, type_access_variables in enumerate(self.selected_components):
-            access_variables.append([])
-            for elem in self.selected_components[type_access_variables]:
+        for type_access_variables, access_variables in (('address', addresses), ('pin', pins)):
+            for elem in self.selected_components.get(type_access_variables, []):
                 try:
-                    access_variables[i].append(elem.opts[type_access_variables])
+                    access_variables.append(elem.opts[type_access_variables])
                     labels_tab.append(elem.opts['name'])
                 except Exception as e:
                     logger.info(f"ERROR - NO ELEMENTS WITH NAME : {str(e)}")
@@ -191,7 +193,7 @@ class DAQ_0DViewer_ViewRasp(DAQ_Viewer_base):
             return
                                                 # SPECIFIC LINE #
 ########################################################################################################################
-        data_tot = self.controller.multi_acquisition(addresses=access_variables[0], pins=access_variables[1])
+        data_tot = self.controller.multi_acquisition(addresses=addresses, pins=pins)
 ########################################################################################################################
 
         if isinstance(data_tot, str) and "ERROR" in data_tot:

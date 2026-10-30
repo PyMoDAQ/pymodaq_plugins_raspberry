@@ -26,6 +26,9 @@ class DAQ_2DViewer_PiCamera(DAQ_Viewer_base):
 
              """
 
+    supported_platforms = ('linux',)  # a Raspberry Pi library
+    supported_architectures = ('aarch64', 'armv7l')
+
     hardware_averaging = True
     live_mode_available = False
 

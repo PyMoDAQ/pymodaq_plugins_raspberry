@@ -43,6 +43,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           
+      # python-prctl (needed by picamera2) is compiled against the libcap headers
+      - name: Install libcap headers (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt update && sudo apt install -y libcap-dev
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip

@@ -20,6 +20,9 @@ class DAQ_1DViewer_daqhats(DAQ_Viewer_base):
          hardware library.
 
     """
+
+    supported_platforms = ('linux',)  # a Raspberry Pi library
+    supported_architectures = ('aarch64', 'armv7l')
     params = comon_parameters + [
         {'title': 'Trigger Active', 'name': 'trigger_active', 'type': 'bool', 'value': False},
         {'title': 'Trigger Mode', 'name': 'trigger_mode', 'type': 'list', 'value': 'RISING_EDGE',

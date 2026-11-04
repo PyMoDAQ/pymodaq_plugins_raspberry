@@ -17,10 +17,10 @@ dependencies = [
     "pymodaq_gui>=5.3.0",
     "pymodaq_data>=5.3.0",
     'pyzmq',
-    # picamera2 ne s'installe que sur Linux/Raspberry (il dépend de python-prctl,
-    # Linux-only). Sur la machine de contrôle (Windows/macOS), le plugin reste
+    # picamera2 ne s'installe que sur Raspberry (il dépend de python-prctl, qui se compile avec les
+    # en-têtes libcap, Linux-only). Sur la machine de contrôle (Windows, macOS, Linux x86), le plugin reste
     # installable ; seul le viewer PiCamera est alors indisponible.
-    'picamera2; platform_system == "Linux"',
+    'picamera2; platform_system == "Linux" and (platform_machine == "aarch64" or platform_machine == "armv7l")',
 ]
 
 authors = [
